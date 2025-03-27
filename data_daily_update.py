@@ -9,7 +9,7 @@ from io import BytesIO
 # ✅ GitHub 정보 설정
 OWNER = "Henryjeon1"
 REPO = "Trackman"
-GITHUB_TOKEN = "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"
+TOKEN = "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"
 
 # ✅ 실행 인자로 날짜 받기
 if len(sys.argv) > 1:
