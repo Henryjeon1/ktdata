@@ -41,13 +41,24 @@ jobs:
           if [[ "$RELEASE_EXISTS" == *"Not Found"* ]]; then
             echo "새로운 릴리스를 생성합니다."
             # 릴리스가 없으면 새로운 릴리스 생성
-            curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
+            RELEASE_RESPONSE=$(curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
             -d "{\"tag_name\": \"${TAG_NAME}\", \"name\": \"${TAG_NAME}\", \"body\": \"릴리스 내용\"}" \
-            "https://api.github.com/repos/${{ github.repository }}/releases"
+            "https://api.github.com/repos/${{ github.repository }}/releases")
           else
             echo "기존 릴리스를 업데이트합니다."
             # 릴리스가 있으면 업데이트 (예: 릴리스의 이름과 내용을 변경)
-            curl -X PATCH -H "Authorization: token $GITHUB_TOKEN" \
+            RELEASE_RESPONSE=$(curl -X PATCH -H "Authorization: token $GITHUB_TOKEN" \
             -d "{\"name\": \"${TAG_NAME}\", \"body\": \"업데이트된 내용\"}" \
-            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${TAG_NAME}"
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${TAG_NAME}")
           fi
+
+          # 업로드할 파일 경로
+          FILE_PATH="data.csv"
+
+          # GitHub Release에 파일 업로드
+          UPLOAD_URL=$(echo $RELEASE_RESPONSE | jq -r '.upload_url' | sed -e "s/{?name,label}//")
+          
+          curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Content-Type: application/octet-stream" \
+            --data-binary @"${FILE_PATH}" \
+            "${UPLOAD_URL}?name=$(basename ${FILE_PATH})"
