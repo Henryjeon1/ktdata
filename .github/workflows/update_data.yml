@@ -24,7 +24,7 @@ jobs:
         run: pip install pandas pyarrow requests
 
       - name: 데이터 생성 실행
-        run: python generate_data.ipynb
+        run: python generate_data.py
 
       - name: Release에 데이터 업로드
         env:
