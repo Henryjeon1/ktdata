@@ -30,7 +30,7 @@ if response.status_code == 200:
     release_data = response.json()
     
     for asset in release_data.get('assets', []):
-        if asset['name'] == FILE_NAME:
+        if asset['name'] == "data.csv":
             # assets API URL 사용
             asset_url = asset['url']
             print(f"\nAsset API URL: {asset_url}")
