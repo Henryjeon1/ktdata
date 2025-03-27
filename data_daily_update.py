@@ -1,3 +1,10 @@
+import os
+import sys
+import pandas as pd
+import requests
+from datetime import datetime
+
+
 # ✅ GitHub 정보 설정
 OWNER = "Henryjeon1"
 REPO = "Trackman"
