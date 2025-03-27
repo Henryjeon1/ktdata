@@ -30,8 +30,24 @@ jobs:
         run: python generate_data.py
 
       - name: Release에 데이터 업로드
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG_NAME=$(date +'%Y-%m-%d')  # 오늘 날짜를 태그로 사용
-          gh release create $TAG_NAME data.parquet --title "Dataset for $TAG_NAME" --notes "자동 업데이트된 데이터"
+          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          API_URL="https://api.github.com/repos/${{ github.repository }}/releases/tags/${TAG_NAME}"
+
+          # 릴리스가 이미 존재하는지 확인
+          RELEASE_EXISTS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" $API_URL)
+
+          if [[ "$RELEASE_EXISTS" == *"Not Found"* ]]; then
+            echo "새로운 릴리스를 생성합니다."
+            # 릴리스가 없으면 새로운 릴리스 생성
+            curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
+            -d "{\"tag_name\": \"${TAG_NAME}\", \"name\": \"${TAG_NAME}\", \"body\": \"릴리스 내용\"}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases"
+          else
+            echo "기존 릴리스를 업데이트합니다."
+            # 릴리스가 있으면 업데이트 (예: 릴리스의 이름과 내용을 변경)
+            curl -X PATCH -H "Authorization: token $GITHUB_TOKEN" \
+            -d "{\"name\": \"${TAG_NAME}\", \"body\": \"업데이트된 내용\"}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${TAG_NAME}"
+          fi
