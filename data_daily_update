@@ -7,7 +7,7 @@ from datetime import datetime
 # ✅ GitHub 정보 설정
 OWNER = "Henryjeon1"
 REPO = "Trackman"
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+GITHUB_TOKEN = "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"
 
 # ✅ 날짜 입력 (직접 지정 가능)
 if len(sys.argv) > 1:
