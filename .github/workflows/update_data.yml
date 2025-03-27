@@ -7,7 +7,6 @@ on:
     - cron: "0 5 * * *"  # 매일 00:00 UTC에 실행 (한국 시간 오전 9시)
   workflow_dispatch:  # 수동 실행 가능
 
-
 jobs:
   update-data:
     runs-on: ubuntu-latest
@@ -24,7 +23,7 @@ jobs:
           python-version: "3.9"
 
       - name: 필요한 패키지 설치
-        run: pip install pandas pyarrow requests pymysql
+        run: pip install pandas pyarrow requests pymysql jq
 
       - name: 데이터 생성 실행
         run: python generate_data.py
@@ -33,32 +32,42 @@ jobs:
         run: |
           TAG_NAME=$(date +'%Y-%m-%d')  # 오늘 날짜를 태그로 사용
           GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          API_URL="https://api.github.com/repos/${{ github.repository }}/releases/tags/${TAG_NAME}"
 
           # 릴리스가 이미 존재하는지 확인
-          RELEASE_EXISTS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" $API_URL)
+          API_URL="https://api.github.com/repos/${{ github.repository }}/releases"
+          RELEASE_EXISTS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "https://api.github.com/repos/${{ github.repository }}/releases/tags/${TAG_NAME}")
 
           if [[ "$RELEASE_EXISTS" == *"Not Found"* ]]; then
             echo "새로운 릴리스를 생성합니다."
-            # 릴리스가 없으면 새로운 릴리스 생성
-            RELEASE_RESPONSE=$(curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
+            RELEASE_RESPONSE=$(curl -s -X POST -H "Authorization: token $GITHUB_TOKEN" \
             -d "{\"tag_name\": \"${TAG_NAME}\", \"name\": \"${TAG_NAME}\", \"body\": \"릴리스 내용\"}" \
-            "https://api.github.com/repos/${{ github.repository }}/releases")
+            "$API_URL")
           else
-            echo "기존 릴리스를 업데이트합니다."
-            # 릴리스가 있으면 업데이트 (예: 릴리스의 이름과 내용을 변경)
-            RELEASE_RESPONSE=$(curl -X PATCH -H "Authorization: token $GITHUB_TOKEN" \
+            echo "기존 릴리스를 가져옵니다."
+            RELEASE_ID=$(echo "$RELEASE_EXISTS" | jq -r '.id')
+            RELEASE_RESPONSE=$(curl -s -X PATCH -H "Authorization: token $GITHUB_TOKEN" \
             -d "{\"name\": \"${TAG_NAME}\", \"body\": \"업데이트된 내용\"}" \
-            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${TAG_NAME}")
+            "$API_URL/$RELEASE_ID")
           fi
 
           # 업로드할 파일 경로
           FILE_PATH="data.csv"
 
+          # 릴리스 생성 후 업로드 URL 가져오기
+          UPLOAD_URL=$(echo "$RELEASE_RESPONSE" | jq -r '.upload_url' | sed -e "s/{?name,label}//")
+
+          # 업로드 URL이 정상인지 확인
+          if [[ "$UPLOAD_URL" == "null" || -z "$UPLOAD_URL" ]]; then
+            echo "❌ 업로드 URL을 가져오지 못했습니다."
+            exit 1
+          fi
+
+          echo "🔗 업로드 URL: $UPLOAD_URL"
+
           # GitHub Release에 파일 업로드
-          UPLOAD_URL=$(echo $RELEASE_RESPONSE | jq -r '.upload_url' | sed -e "s/{?name,label}//")
-          
           curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
             -H "Content-Type: application/octet-stream" \
             --data-binary @"${FILE_PATH}" \
             "${UPLOAD_URL}?name=$(basename ${FILE_PATH})"
+
+          echo "✅ 파일 업로드 완료!"
