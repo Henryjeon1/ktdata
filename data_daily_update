@@ -1,0 +1,49 @@
+import os
+import sys
+import pandas as pd
+import requests
+from datetime import datetime
+
+# ✅ GitHub 정보 설정
+OWNER = "Henryjeon1"
+REPO = "Trackman"
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+
+# ✅ 날짜 입력 (직접 지정 가능)
+if len(sys.argv) > 1:
+    TARGET_DATE = sys.argv[1]  # 실행 시 인자로 날짜 입력 가능 (예: '2025-03-27')
+else:
+    TARGET_DATE = input("업데이트할 날짜를 입력하세요 (예: YYYY-MM-DD): ")
+
+# ✅ GitHub Releases에서 CSV 다운로드
+TAG_NAME = TARGET_DATE  # 입력한 날짜를 태그로 사용
+release_url = f"https://api.github.com/repos/{OWNER}/{REPO}/releases/tags/{TAG_NAME}"
+headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+
+response = requests.get(release_url, headers=headers)
+if response.status_code == 200:
+    release_data = response.json()
+    asset_url = release_data["assets"][0]["browser_download_url"]
+    print(f"📌 CSV 다운로드 URL: {asset_url}")
+
+    # CSV 파일을 데이터프레임으로 읽기
+    df = pd.read_csv(asset_url)
+
+    # ✅ 기존 데이터에서 TARGET_DATE 삭제
+    df = df[df["Date"] != TARGET_DATE]
+
+    # ✅ SQL에서 새로운 TARGET_DATE 데이터 가져오기  
+    new_data = pd.DataFrame({
+        "Date": [TARGET_DATE] * 5,
+        "Value": [100, 200, 300, 400, 500]
+    })  # 실제로는 SQL에서 가져와야 함
+
+    # ✅ 새로운 데이터 추가
+    df = pd.concat([df, new_data], ignore_index=True)
+
+    # ✅ 업데이트된 CSV 다시 저장 & 업로드
+    df.to_csv("data.csv", index=False)
+
+    print(f"✅ {TARGET_DATE} 데이터 업데이트 완료!")
+else:
+    print(f"❌ 릴리스 가져오기 실패 (HTTP {response.status_code})")
