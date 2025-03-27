@@ -3,9 +3,11 @@
 name: Daily
 
 on:
-  schedule:
-    - cron: "0 5 * * *"  # 매일 00:00 UTC에 실행 (한국 시간 오전 9시)
-  workflow_dispatch:  # 수동 실행 가능
+  workflow_dispatch:  # 🟢 수동 실행을 허용
+    inputs:
+      date:
+        description: "업데이트할 날짜 (YYYY-MM-DD)"
+        required: true
 
 jobs:
   update-data:
@@ -17,16 +19,18 @@ jobs:
       - name: 저장소 체크아웃
         uses: actions/checkout@v3
 
+
       - name: Python 설정
         uses: actions/setup-python@v4
         with:
           python-version: "3.9"
 
+
       - name: 필요한 패키지 설치
         run: pip install pandas pyarrow requests pymysql jq
 
       - name: 데이터 생성 실행
-        run: python data_daily_update.py
+        run: python data_daily_update.py ${{ github.event.inputs.date }}
 
       - name: Release에 데이터 업로드
         run: |
