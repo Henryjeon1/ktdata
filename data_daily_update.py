@@ -10,11 +10,14 @@ OWNER = "Henryjeon1"
 REPO = "Trackman"
 GITHUB_TOKEN = "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"
 
-# ✅ 날짜 입력 (직접 지정 가능)
+# ✅ 실행 인자로 날짜 받기
 if len(sys.argv) > 1:
-    TARGET_DATE = sys.argv[1]  # 실행 시 인자로 날짜 입력 가능 (예: '2025-03-27')
+    TARGET_DATE = sys.argv[1]
 else:
-    TARGET_DATE = input("업데이트할 날짜를 입력하세요 (예: YYYY-MM-DD): ")
+    print("❌ 날짜가 제공되지 않았습니다.")
+    sys.exit(1)  # 오류 종료
+
+print(f"📅 업데이트할 날짜: {TARGET_DATE}")
 
 # ✅ GitHub Releases에서 CSV 다운로드
 TAG_NAME = TARGET_DATE  # 입력한 날짜를 태그로 사용
