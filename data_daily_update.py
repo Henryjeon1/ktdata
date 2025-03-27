@@ -4,6 +4,7 @@ import pandas as pd
 import requests
 from datetime import datetime
 from io import BytesIO
+import pymysql
 
 
 # ✅ GitHub 정보 설정
