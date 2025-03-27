@@ -21,7 +21,7 @@ print(f"📅 업데이트할 날짜: {TARGET_DATE}")
 
 # ✅ GitHub Releases에서 CSV 다운로드
 TAG_NAME = TARGET_DATE  # 입력한 날짜를 태그로 사용
-release_url = f"https://api.github.com/repos/{OWNER}/{REPO}/releases/tags/{TAG_NAME}"
+release_url = f"https://api.github.com/repos/{OWNER}/{REPO}/releases/latest"
 headers = {"Authorization": f"token {GITHUB_TOKEN}"}
 
 response = requests.get(release_url, headers=headers)
