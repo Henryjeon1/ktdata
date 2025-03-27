@@ -484,54 +484,54 @@ if response.status_code == 200:
 
     def pkind(x):
 
-    if x == '4-Seam Fastball':
-        return 'Fastball'
-    elif x == '2-Seam Fastball':
-        return 'Fastball'
-    elif x == 'Cutter':
-        return 'Fastball'
-    elif x == 'Slider':
-        return 'Breaking'
-    elif x == 'Curveball':
-        return 'Breaking'
-    elif x == 'Sweeper':
-        return 'Breaking'
-    elif x == 'Changeup':
-        return 'Off_Speed'
-    elif x == 'Split-Finger':
-        return 'Off_Speed'
-    else:
-        return 'OT'
+        if x == '4-Seam Fastball':
+            return 'Fastball'
+        elif x == '2-Seam Fastball':
+            return 'Fastball'
+        elif x == 'Cutter':
+            return 'Fastball'
+        elif x == 'Slider':
+            return 'Breaking'
+        elif x == 'Curveball':
+            return 'Breaking'
+        elif x == 'Sweeper':
+            return 'Breaking'
+        elif x == 'Changeup':
+            return 'Off_Speed'
+        elif x == 'Split-Finger':
+            return 'Off_Speed'
+        else:
+            return 'OT'
 
 
     df['p_kind'] = df['pitch_name'].apply(lambda x: pkind(x))
 
     def count(x):
 
-    if x == '0-0':
-        return 'Neutral'
-    elif x == '3-2':
-        return 'Neutral'
-    elif x == '0-1':
-        return 'Pitcher'
-    elif x == '0-2':
-        return 'Pitcher'
-    elif x == '1-1':
-        return 'Pitcher'
-    elif x == '1-2':
-        return 'Pitcher'
-    elif x == '2-2':
-        return 'Pitcher'
-    elif x == '1-0':
-        return 'Hitter'
-    elif x == '2-0':
-        return 'Hitter'
-    elif x == '2-1':
-        return 'Hitter'
-    elif x == '3-0':
-        return 'Hitter'
-    elif x == '3-1':
-        return 'Hitter'
+        if x == '0-0':
+            return 'Neutral'
+        elif x == '3-2':
+            return 'Neutral'
+        elif x == '0-1':
+            return 'Pitcher'
+        elif x == '0-2':
+            return 'Pitcher'
+        elif x == '1-1':
+            return 'Pitcher'
+        elif x == '1-2':
+            return 'Pitcher'
+        elif x == '2-2':
+            return 'Pitcher'
+        elif x == '1-0':
+            return 'Hitter'
+        elif x == '2-0':
+            return 'Hitter'
+        elif x == '2-1':
+            return 'Hitter'
+        elif x == '3-0':
+            return 'Hitter'
+        elif x == '3-1':
+            return 'Hitter'
 
     df['count_value'] = df['count'].apply(lambda x: count(x))
 
@@ -638,24 +638,24 @@ if response.status_code == 200:
 
     def ntype(x):
 
-    if x == 'called_strike':
-        return 'strike'
-    elif x == 'ball':
-        return 'ball'   
-    elif x == 'hit_into_play':
-        return 'inplay'  
-    elif x == 'hit_into_play_no_out':
-        return 'inplay'   
-    elif x == 'hit_into_play_score':
-        return 'inplay'   
-    elif x == 'swinging_strike':
-        return 'whiff'   
-    elif x == 'swing_strike_blocked':
-        return 'whiff'   
-    elif x == 'foul':
-        return 'foul'   
-    elif x == 'hit_by_pitch':
-        return 'hit_by_pitch'   
+        if x == 'called_strike':
+            return 'strike'
+        elif x == 'ball':
+            return 'ball'   
+        elif x == 'hit_into_play':
+            return 'inplay'  
+        elif x == 'hit_into_play_no_out':
+            return 'inplay'   
+        elif x == 'hit_into_play_score':
+            return 'inplay'   
+        elif x == 'swinging_strike':
+            return 'whiff'   
+        elif x == 'swing_strike_blocked':
+            return 'whiff'   
+        elif x == 'foul':
+            return 'foul'   
+        elif x == 'hit_by_pitch':
+            return 'hit_by_pitch'   
 
     ndf['ntype'] = ndf['description'].apply(lambda x: ntype(x))
 
