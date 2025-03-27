@@ -27,7 +27,7 @@ jobs:
 
 
       - name: 필요한 패키지 설치
-        run: pip install pandas pyarrow requests pymysql jq
+        run: pip install pandas pyarrow requests pymysql jq BytesIO
 
       - name: 데이터 생성 실행
         run: python data_daily_update.py ${{ github.event.inputs.date }}
