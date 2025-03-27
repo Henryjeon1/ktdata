@@ -694,7 +694,6 @@ ndf['month'] = ndf['game_date'].dt.month
 
 
 # 데이터 저장 (GitHub Actions에서 실행되는 디렉토리)
-output_file = "data.parquet"
-ndf.to_parquet(output_file, engine="pyarrow")
+ndf.to_csv("data.csv", index=True)
 
 print(f"✅ 데이터 생성 완료: {output_file}")
