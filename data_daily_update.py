@@ -16,49 +16,25 @@ if len(sys.argv) > 1:
     TARGET_DATE = sys.argv[1]
 else:
     print("❌ 날짜가 제공되지 않았습니다.")
-    sys.exit(1)  # 오류 종료
+    sys.exit(1)
 
 print(f"📅 업데이트할 날짜: {TARGET_DATE}")
 
-# ✅ GitHub Releases에서 CSV 다운로드
-TAG_NAME = TARGET_DATE  # 입력한 날짜를 태그로 사용
+# ✅ 항상 'latest' 릴리스에서 CSV 다운로드
 release_url = f"https://api.github.com/repos/{OWNER}/{REPO}/releases/latest"
 headers = {"Authorization": f"token {GITHUB_TOKEN}"}
 
 response = requests.get(release_url, headers=headers)
+
 if response.status_code == 200:
     release_data = response.json()
     
-    for asset in release_data.get('assets', []):
-        if asset['name'] == FILE_NAME:
-            # assets API URL 사용
-            asset_url = asset['url']
-            print(f"\nAsset API URL: {asset_url}")
-            
-            # API 요청 헤더 수정
-            download_headers = {
-                'Authorization': f'token {TOKEN}',
-                'Accept': 'application/octet-stream'  # 중요: 이 헤더를 추가
-            }
-            
-            # assets API를 통해 파일 다운로드
-            response = requests.get(
-                asset_url,
-                headers=download_headers,
-                allow_redirects=True
-            )
-            
-            print(f"파일 다운로드 상태: {response.status_code}")
-            
-            if response.status_code == 200:
-                try:
-                    df = pd.read_csv(BytesIO(response.content))
-
-                except Exception as e:
-                    print(f"데이터프레임 생성 중 오류: {str(e)}")
-            else:
-                print(f"다운로드 실패: {response.text}")
-            break
+    # ✅ 릴리스에 업로드된 파일이 있는지 확인
+    if "assets" in release_data and len(release_data["assets"]) > 0:
+        asset_url = release_data["assets"][0]["browser_download_url"]
+        print(f"📌 최신 CSV 다운로드 URL: {asset_url}")
+        
+        df = pd.read_csv(asset_url)
 
     # ✅ 기존 데이터에서 TARGET_DATE 삭제
     df = df[df["Date"] != TARGET_DATE]
