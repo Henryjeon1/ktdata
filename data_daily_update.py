@@ -61,7 +61,7 @@ if response.status_code == 200:
             break
 
     # ✅ 기존 데이터에서 TARGET_DATE 삭제
-    df = df[df["Date"] != TARGET_DATE]
+    df = df[df["game_date"] != TARGET_DATE]
 
     # ✅ SQL에서 새로운 TARGET_DATE 데이터 가져오기  
     db = pymysql.connect(host='14.49.30.59', port = 33067, user = 'ktwiz', passwd = 'ktwiz1234!#', db = 'ktwiz')
