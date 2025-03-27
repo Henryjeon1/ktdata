@@ -22,7 +22,7 @@ print(f"📅 업데이트할 날짜: {TARGET_DATE}")
 
 # ✅ 항상 'latest' 릴리스에서 CSV 다운로드
 release_url = f"https://api.github.com/repos/{OWNER}/{REPO}/releases/latest"
-headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+headers = {"Authorization": f"token {TOKEN}"}
 
 response = requests.get(release_url, headers=headers)
 
