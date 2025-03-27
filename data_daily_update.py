@@ -308,15 +308,7 @@ if response.status_code == 200:
     -- gameid Like '2020%'
     substring(gameid,1,4) >= '2020'
     and gameid <> '20241001-Suwon-1'
-    and ((gameid >='20180401' and gameid <='20181018')
-    or (gameid >='20190323' and gameid <='20191001')    
-    or (gameid >='20200504' and gameid <='20201100')
-    or (gameid >='20210402' and gameid <='20211100')
-    or (gameid >='20220401' and gameid <='20221012')
-    or (gameid >='20230401' and gameid <='20231018')
-    or (gameid >='20240323' and gameid <='20241002')
-    or (gameid >='20250321')
-    )
+    AND `DATE` = '{target_date}'  -- ✅ 여기에 날짜 필터링 추가
 
 
 
