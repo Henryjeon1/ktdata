@@ -7,12 +7,12 @@ on:
     - cron: "0 5 * * *"  # 매일 00:00 UTC에 실행 (한국 시간 오전 9시)
   workflow_dispatch:  # 수동 실행 가능
 
-permissions:
-  contents: write
 
 jobs:
   update-data:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: 저장소 체크아웃
