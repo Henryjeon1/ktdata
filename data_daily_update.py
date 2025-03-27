@@ -3,7 +3,6 @@ import sys
 import pandas as pd
 import requests
 from datetime import datetime
-import BytesIO
 
 
 # ✅ GitHub 정보 설정
