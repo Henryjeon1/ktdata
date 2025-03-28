@@ -36,7 +36,9 @@ jobs:
 
       - name: Run update script
         env:
+          PW: ${{ inputs.pw }}  # 🟢 입력한 비밀번호를 환경 변수로 설정
           TARGET_DATE: ${{ inputs.date }}  # 🟢 입력한 날짜를 환경 변수로 설정
+          
         run: python data_daily_update.py
 
       - name: Release에 데이터 업로드
