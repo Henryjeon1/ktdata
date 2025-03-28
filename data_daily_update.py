@@ -349,7 +349,7 @@ if response.status_code == 200:
     -- game year
     -- gameid Like '2020%'
     substring(gameid,1,4) >= '2020'
-    AND `DATE` ='{target_date}'   -- ✅ 여기에 날짜 필터링 추가
+    AND `DATE` = '2025-03-26'   -- ✅ 여기에 날짜 필터링 추가
 
 
 
