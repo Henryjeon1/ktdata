@@ -16,12 +16,12 @@ TOKEN = "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"
 # ✅ 환경 변수에서 날짜 가져오기
 TARGET_DATE = os.getenv("TARGET_DATE")
 
-# ✅ 실행 인자로 날짜 받기
-if len(sys.argv) > 1:
-    TARGET_DATE = sys.argv[1]
-else:
-    print("❌ 날짜가 제공되지 않았습니다.")
-    sys.exit(1)
+# ✅ 만약 환경 변수가 없으면 기본값을 입력받음
+if not TARGET_DATE:
+    if len(sys.argv) > 1:
+        TARGET_DATE = sys.argv[1]
+    else:
+        TARGET_DATE = input("업데이트할 날짜를 입력하세요 (예: YYYY-MM-DD): ")
 
 print(f"📅 업데이트할 날짜: {TARGET_DATE}")
 
