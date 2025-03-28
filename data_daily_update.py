@@ -333,6 +333,8 @@ if response.status_code == 200:
 
             FROM 
                 pda_trackman a
+                WHERE `DATE` = '{TARGET_DATE}' -- ✅ 여기에 날짜 필터링 추가
+
             -- JOIN
                 Left outer join 
                 pda_analyzer b
@@ -349,7 +351,6 @@ if response.status_code == 200:
     -- game year
     -- gameid Like '2020%'
     substring(gameid,1,4) >= '2020'
-    AND `DATE` = '2025-03-26'   -- ✅ 여기에 날짜 필터링 추가
 
 
 
