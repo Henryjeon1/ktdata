@@ -29,9 +29,6 @@ jobs:
       - name: 필요한 패키지 설치
         run: pip install pandas pyarrow requests pymysql jq
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
       - name: Run update script
         env:
           TARGET_DATE: ${{ inputs.date }}  # 🟢 입력한 날짜를 환경 변수로 설정
