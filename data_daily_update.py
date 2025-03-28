@@ -596,7 +596,7 @@ if response.status_code == 200:
     ddf['flare'] = ddf['launch_speed_angle'].apply(lambda x: 1 if x == 4 else None)
     ddf['solid_contact'] = ddf['launch_speed_angle'].apply(lambda x: 1 if x == 5 else None)
     ddf['barrel'] = ddf['launch_speed_angle'].apply(lambda x: 1 if x == 6 else None)
-    ddf['plus_lsa4'] = ddf['launch_speed_angle'].apply(lambda x: 1 if x >= 4 else None if x is not None else None)
+    ddf['plus_lsa4'] = ddf['launch_speed_angle'].apply(lambda x: 1 if pd.notna(x) and x >= 4 else None)
     ddf['cs'] = ddf['description'].apply(lambda x: 1 if x == 'called_strike' else None)
 
 
