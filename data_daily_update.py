@@ -71,7 +71,7 @@ if response.status_code == 200:
     df = df[df["game_date"] != TARGET_DATE]
 
     # ✅ SQL에서 새로운 TARGET_DATE 데이터 가져오기  
-    db = pymysql.connect(host='14.49.30.59', port = 33067, user = 'ktwiz', passwd = {PW}, db = 'ktwiz')
+    db = pymysql.connect(host='14.49.30.59', port = 33067, user = 'ktwiz', passwd = PW, db = 'ktwiz')
 
 
     cursor = db.cursor()
