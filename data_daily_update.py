@@ -335,7 +335,7 @@ if response.status_code == 200:
 
             FROM 
                 pda_trackman a
-                WHERE `DATE` = '{TARGET_DATE}' -- ✅ 여기에 날짜 필터링 추가
+                
 
             -- JOIN
                 Left outer join 
@@ -344,6 +344,8 @@ if response.status_code == 200:
                 Left outer join 
                 pda_calculate c
                 ON a.game_seq = c.game_seq AND a.PitchNo = c.pitch_no
+
+                WHERE a.`DATE` = '{TARGET_DATE}' -- ✅ 여기에 날짜 필터링 추가
                 
             ) ZZ
         
