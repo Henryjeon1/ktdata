@@ -5,6 +5,11 @@ name: Daily
 on:
   workflow_dispatch:  # 🟢 수동 실행을 허용
     inputs:
+      pw:
+        description: "데이터베이스 비밀번호"
+        required: true
+        type: string  # 입력 타입을 문자열로 설정
+
       date:
         description: "업데이트할 날짜 (YYYY-MM-DD)"
         required: true
