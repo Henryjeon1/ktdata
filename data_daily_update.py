@@ -363,15 +363,15 @@ if response.status_code == 200:
     cursor.execute(sql)
     raw = cursor.fetchall()
 
-    df=pd.DataFrame(raw, columns = ['game_id','pitch_type', 'game_date', 'release_speed', 'release_pos_x', 'release_pos_z',  'pitname', 'batname', 'batter', 'pitcher', 'events', 'description', 'zone', 'des', 'stand', 'p_throw', 'pitcherteam','batterteam', 'hometeam' , 'awayteam',
+    ddf=pd.DataFrame(raw, columns = ['game_id','pitch_type', 'game_date', 'release_speed', 'release_pos_x', 'release_pos_z',  'pitname', 'batname', 'batter', 'pitcher', 'events', 'description', 'zone', 'des', 'stand', 'p_throw', 'pitcherteam','batterteam', 'hometeam' , 'awayteam',
                                     'type', 'bb_type', 'balls', 'strikes', 'pfx_x', 'pfx_z', 'plate_x', 'plate_z', 'out_when_up', 'inning', 'inning_topbot', 'hit_distance_sc',
                                     'launch_speed','launch_angle','release_spin_rate','release_spin_axis', 'release_extension',
                                     'launch_speed_angle','pitch_number','PAofinning','pitch_name','home_score','away_score','level','verrelangle','launch_direction', 'contactX' , 'contactY' , 'contactZ', 'groundX','groundY','game_year','hit_spin_rate', 'catcher',
                                     'x0', 'x5', 'x10', 'x15', 'x20', 'x25', 'x30', 'x35', 'x40', 'x45', 'x50',
                                     'z0', 'z5', 'z10', 'z15', 'z20', 'z25', 'z30', 'z35', 'z40', 'z45', 'z50'])
 
-    df['plate_x'] = df['plate_x'] * -1.0
-    df['pfx_x'] = df['pfx_x'] * -1.0
+    ddf['plate_x'] = ddf['plate_x'] * -1.0
+    ddf['pfx_x'] = ddf['pfx_x'] * -1.0
 
 
     cursor = db.cursor()
@@ -387,85 +387,85 @@ if response.status_code == 200:
     height_df['game_year'] = height_df['game_year'].astype(str)
 
 
-    df = pd.merge(left = df , right = height_df, how = "left", left_on = ["game_year","batter"], right_on = ["game_year", "TM_ID"] )
+    ddf = pd.merge(left = ddf , right = height_df, how = "left", left_on = ["game_year","batter"], right_on = ["game_year", "TM_ID"] )
 
 
 
-    df[['batter','pitcher','groundX','groundY','game_year']] = df[['batter','pitcher','groundX', 'groundY','game_year']].apply(pd.to_numeric)
+    ddf[['batter','pitcher','groundX','groundY','game_year']] = ddf[['batter','pitcher','groundX', 'groundY','game_year']].apply(pd.to_numeric)
 
     conv_fac = 0.3048
 
-    df['rel_height'] = df['release_pos_z']*conv_fac
-    df['rel_side'] = df['release_pos_x']*conv_fac
-    df['hor_break'] = df['pfx_x']*conv_fac*100
-    df['ver_break'] = df['pfx_z']*conv_fac*100
+    ddf['rel_height'] = ddf['release_pos_z']*conv_fac
+    ddf['rel_side'] = ddf['release_pos_x']*conv_fac
+    ddf['hor_break'] = ddf['pfx_x']*conv_fac*100
+    ddf['ver_break'] = ddf['pfx_z']*conv_fac*100
 
-    p_type = df[['pitcher','rel_height']]
+    p_type = ddf[['pitcher','rel_height']]
     rel_height = p_type.groupby(['pitcher'], as_index=False).mean()
     rel_height['type'] = rel_height['rel_height'].apply(lambda x: 'S' if x <= 1.5 else 'R')
     side_arm = rel_height[rel_height['type'] == 'S']
 
     y = side_arm['pitcher'].unique()
 
-    df['side_arm'] = df['pitcher'].apply(lambda x: 'S' if x in y else 'Reg')
-    df['p_throws'] = df['pitcher'].apply(lambda x: 'S' if x in y else (list(set(df.loc[df['pitcher'] == x, 'p_throw'].unique()))+[None])[0])
+    ddf['side_arm'] = ddf['pitcher'].apply(lambda x: 'S' if x in y else 'Reg')
+    ddf['p_throws'] = ddf['pitcher'].apply(lambda x: 'S' if x in y else (list(set(ddf.loc[ddf['pitcher'] == x, 'p_throw'].unique()))+[None])[0])
 
-    df['Height'] = pd.to_numeric(df['Height'], errors='coerce')
+    ddf['Height'] = pd.to_numeric(ddf['Height'], errors='coerce')
 
     # 신장 가져오기
-    df['high'] = np.where(df['Height'].isnull(), 1.049 , (df['Height'] * 0.5575 + 3.5) / 100)
-    df['low']  = np.where(df['Height'].isnull(), 0.463 , (df['Height'] * 0.2704 - 3.5) / 100)
+    ddf['high'] = np.where(ddf['Height'].isnull(), 1.049 , (ddf['Height'] * 0.5575 + 3.5) / 100)
+    ddf['low']  = np.where(ddf['Height'].isnull(), 0.463 , (ddf['Height'] * 0.2704 - 3.5) / 100)
     # 신장이 없는 경우는 일단 183cm 기준으로 가져오는 것으로 함 
 
 
-    df['1/3'] = (df['low'] + ((df['high'] - df['low']) / 3))
-    df['2/3'] = (df['high'] - ((df['high'] - df['low']) / 3))
+    ddf['1/3'] = (ddf['low'] + ((ddf['high'] - ddf['low']) / 3))
+    ddf['2/3'] = (ddf['high'] - ((ddf['high'] - ddf['low']) / 3))
 
-    # df['zonehigh'] = df['Height'] * 0.6335 / 100
-    # df['corehigh'] = df['Height'] * 0.4935 / 100
-    # df['corelow'] = df['Height'] * 0.3464 / 100
-    # df['zonelow'] = df['Height'] * 0.2064 / 100
+    # ddf['zonehigh'] = ddf['Height'] * 0.6335 / 100
+    # ddf['corehigh'] = ddf['Height'] * 0.4935 / 100
+    # ddf['corelow'] = ddf['Height'] * 0.3464 / 100
+    # ddf['zonelow'] = ddf['Height'] * 0.2064 / 100
 
 
-    df['zonehigh'] = df['high'] + 0.11
-    df['corehigh'] = df['high'] - 0.11
-    df['corelow'] = df['low'] + 0.11
-    df['zonelow'] = df['low'] - 0.11
+    ddf['zonehigh'] = ddf['high'] + 0.11
+    ddf['corehigh'] = ddf['high'] - 0.11
+    ddf['corelow'] = ddf['low'] + 0.11
+    ddf['zonelow'] = ddf['low'] - 0.11
 
     condition9 = [
-                (df['plate_x'] > -0.271) & (df['plate_x'] < 0.271) & (df['plate_z'] > df['low'] ) & (df['plate_z'] < df['high']),
-                (df['plate_x'] > -0.381) & (df['plate_x'] < 0.381) & (df['plate_z'] > df['zonelow']) & (df['plate_z'] < df['zonehigh'])
+                (ddf['plate_x'] > -0.271) & (ddf['plate_x'] < 0.271) & (ddf['plate_z'] > ddf['low'] ) & (ddf['plate_z'] < ddf['high']),
+                (ddf['plate_x'] > -0.381) & (ddf['plate_x'] < 0.381) & (ddf['plate_z'] > ddf['zonelow']) & (ddf['plate_z'] < ddf['zonehigh'])
                 
     ]
 
     choicelist9 = ['IN', 'OUT']
 
-    df['INOUT'] = np.select(condition9, choicelist9, default= 'Not Specified')
+    ddf['INOUT'] = np.select(condition9, choicelist9, default= 'Not Specified')
 
     condition0 = [
-                (df['plate_x'] > -0.271) & (df['plate_x'] < -0.0903) & (df['plate_z'] > df['2/3']) & (df['plate_z'] < df['high']),
-                (df['plate_x'] > -0.0903) & (df['plate_x'] < 0.0903) & (df['plate_z'] > df['2/3']) & (df['plate_z'] < df['high']),
-                (df['plate_x'] > 0.0903) & (df['plate_x'] < 0.271) & (df['plate_z'] > df['2/3']) & (df['plate_z'] < df['high']),
+                (ddf['plate_x'] > -0.271) & (ddf['plate_x'] < -0.0903) & (ddf['plate_z'] > ddf['2/3']) & (ddf['plate_z'] < ddf['high']),
+                (ddf['plate_x'] > -0.0903) & (ddf['plate_x'] < 0.0903) & (ddf['plate_z'] > ddf['2/3']) & (ddf['plate_z'] < ddf['high']),
+                (ddf['plate_x'] > 0.0903) & (ddf['plate_x'] < 0.271) & (ddf['plate_z'] > ddf['2/3']) & (ddf['plate_z'] < ddf['high']),
                 
-                (df['plate_x'] > -0.271) & (df['plate_x'] < -0.0903) & (df['plate_z'] > df['1/3']) & (df['plate_z'] < df['2/3']),
-                (df['plate_x'] > -0.0903) & (df['plate_x'] < 0.0903) & (df['plate_z'] > df['1/3']) & (df['plate_z'] < df['2/3']),
-                (df['plate_x'] > 0.0903) & (df['plate_x'] < 0.271) & (df['plate_z'] > df['1/3']) & (df['plate_z'] < df['2/3']),
+                (ddf['plate_x'] > -0.271) & (ddf['plate_x'] < -0.0903) & (ddf['plate_z'] > ddf['1/3']) & (ddf['plate_z'] < ddf['2/3']),
+                (ddf['plate_x'] > -0.0903) & (ddf['plate_x'] < 0.0903) & (ddf['plate_z'] > ddf['1/3']) & (ddf['plate_z'] < ddf['2/3']),
+                (ddf['plate_x'] > 0.0903) & (ddf['plate_x'] < 0.271) & (ddf['plate_z'] > ddf['1/3']) & (ddf['plate_z'] < ddf['2/3']),
                 
-                (df['plate_x'] > -0.271) & (df['plate_x'] < -0.0903) & (df['plate_z'] > df['low']) & (df['plate_z'] < df['1/3']),
-                (df['plate_x'] > -0.0903) & (df['plate_x'] < 0.0903) & (df['plate_z'] > df['low']) & (df['plate_z'] < df['1/3']),
-                (df['plate_x'] > 0.0903) & (df['plate_x'] < 0.271) & (df['plate_z'] > df['low']) & (df['plate_z'] < df['1/3']),
+                (ddf['plate_x'] > -0.271) & (ddf['plate_x'] < -0.0903) & (ddf['plate_z'] > ddf['low']) & (ddf['plate_z'] < ddf['1/3']),
+                (ddf['plate_x'] > -0.0903) & (ddf['plate_x'] < 0.0903) & (ddf['plate_z'] > ddf['low']) & (ddf['plate_z'] < ddf['1/3']),
+                (ddf['plate_x'] > 0.0903) & (ddf['plate_x'] < 0.271) & (ddf['plate_z'] > ddf['low']) & (ddf['plate_z'] < ddf['1/3']),
                 
-                (df['INOUT'] == 'OUT') & (df['plate_x'] < 0) & (df['plate_z'] > 0.75) ,
-                (df['INOUT'] == 'OUT') & (df['plate_x'] > 0) & (df['plate_z'] > 0.75) ,
-                (df['INOUT'] == 'OUT') & (df['plate_x'] < 0) & (df['plate_z'] < 0.75) ,
-                (df['INOUT'] == 'OUT') & (df['plate_x'] > 0) & (df['plate_z'] < 0.75) ,
+                (ddf['INOUT'] == 'OUT') & (ddf['plate_x'] < 0) & (ddf['plate_z'] > 0.75) ,
+                (ddf['INOUT'] == 'OUT') & (ddf['plate_x'] > 0) & (ddf['plate_z'] > 0.75) ,
+                (ddf['INOUT'] == 'OUT') & (ddf['plate_x'] < 0) & (ddf['plate_z'] < 0.75) ,
+                (ddf['INOUT'] == 'OUT') & (ddf['plate_x'] > 0) & (ddf['plate_z'] < 0.75) ,
                 
                 
     ]
 
     choicelist0 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14]
 
-    df['zone'] = np.select(condition0, choicelist0, default= 99)
+    ddf['zone'] = np.select(condition0, choicelist0, default= 99)
 
 
 
@@ -477,39 +477,39 @@ if response.status_code == 200:
     whiff = ['swinging_strike','swing_strike_blocked']
     foul = ['foul','foul_tip']
 
-    df['pa'] = df['events'].apply(lambda x: 1 if x in pa else None)
-    df['ab'] = df['events'].apply(lambda x: 1 if x in ab else None)
-    df['hit'] = df['events'].apply(lambda x: 1 if x in hit else None)
-    df['swing'] = df['description'].apply(lambda x: 1 if x in swing else None)
-    df['con'] = df['description'].apply(lambda x: 1 if x in con else None)
-    df['whiff'] = df['description'].apply(lambda x: 1 if x in whiff else None)
-    df['foul'] = df['description'].apply(lambda x: 1 if x in foul else None)
+    ddf['pa'] = ddf['events'].apply(lambda x: 1 if x in pa else None)
+    ddf['ab'] = ddf['events'].apply(lambda x: 1 if x in ab else None)
+    ddf['hit'] = ddf['events'].apply(lambda x: 1 if x in hit else None)
+    ddf['swing'] = ddf['description'].apply(lambda x: 1 if x in swing else None)
+    ddf['con'] = ddf['description'].apply(lambda x: 1 if x in con else None)
+    ddf['whiff'] = ddf['description'].apply(lambda x: 1 if x in whiff else None)
+    ddf['foul'] = ddf['description'].apply(lambda x: 1 if x in foul else None)
 
-    df['z_in'] = df['zone'].apply(lambda x: 1 if x < 10 else None)
-    df['z_out'] = df['zone'].apply(lambda x: 1 if x > 10 else None)
+    ddf['z_in'] = ddf['zone'].apply(lambda x: 1 if x < 10 else None)
+    ddf['z_out'] = ddf['zone'].apply(lambda x: 1 if x > 10 else None)
 
-    df['balls'] = df['balls'].apply(str)
-    df['strikes'] = df['strikes'].apply(str)
-    df['count'] = df['balls'].str.cat(df['strikes'], sep='-')
+    ddf['balls'] = ddf['balls'].apply(str)
+    ddf['strikes'] = ddf['strikes'].apply(str)
+    ddf['count'] = ddf['balls'].str.cat(ddf['strikes'], sep='-')
 
     speed_fac = 1.609344
     distance_fac = 0.3048
 
-    df['rel_speed(km)'] = df['release_speed']*speed_fac
-    df['exit_speed(km)'] = df['launch_speed']*speed_fac
-    df['rel_height'] = df['release_pos_z']*distance_fac
-    df['rel_side'] = df['release_pos_x']*distance_fac
-    df['extension'] = df['release_extension']*distance_fac
-    df['hit_distance'] = df['hit_distance_sc']*distance_fac
+    ddf['rel_speed(km)'] = ddf['release_speed']*speed_fac
+    ddf['exit_speed(km)'] = ddf['launch_speed']*speed_fac
+    ddf['rel_height'] = ddf['release_pos_z']*distance_fac
+    ddf['rel_side'] = ddf['release_pos_x']*distance_fac
+    ddf['extension'] = ddf['release_extension']*distance_fac
+    ddf['hit_distance'] = ddf['hit_distance_sc']*distance_fac
 
-    p_type = df[['pitcher','rel_height']]
+    p_type = ddf[['pitcher','rel_height']]
     rel_height = p_type.groupby(['pitcher'], as_index=False).mean()
 
     rel_height['type'] = rel_height['rel_height'].apply(lambda x: 'S' if x <= 1.5 else 'R')
     side_arm = rel_height[rel_height['type'] == 'S']
     y = side_arm['pitcher'].unique()
 
-    df['p_type'] = df['pitcher'].apply(lambda x: 'S' if x in y else 'R')
+    ddf['p_type'] = ddf['pitcher'].apply(lambda x: 'S' if x in y else 'R')
 
 
 
@@ -535,7 +535,7 @@ if response.status_code == 200:
             return 'OT'
 
 
-    df['p_kind'] = df['pitch_name'].apply(lambda x: pkind(x))
+    ddf['p_kind'] = ddf['pitch_name'].apply(lambda x: pkind(x))
 
     def count(x):
 
@@ -564,71 +564,71 @@ if response.status_code == 200:
         elif x == '3-1':
             return 'Hitter'
 
-    df['count_value'] = df['count'].apply(lambda x: count(x))
+    ddf['count_value'] = ddf['count'].apply(lambda x: count(x))
 
-    df['after_2s'] = df['count_value'].apply(lambda x: 1 if x == 'After_2S' else None)
-    df['hitting'] = df['count_value'].apply(lambda x: 1 if x == 'Hitting' else None)
-    df['else'] = df['count_value'].apply(lambda x: 1 if x == 'Else' else None)
+    ddf['after_2s'] = ddf['count_value'].apply(lambda x: 1 if x == 'After_2S' else None)
+    ddf['hitting'] = ddf['count_value'].apply(lambda x: 1 if x == 'Hitting' else None)
+    ddf['else'] = ddf['count_value'].apply(lambda x: 1 if x == 'Else' else None)
 
-    df['ld'] = df['bb_type'].apply(lambda x: 1 if x == 'Line_Drive' else None)
-    df['fb'] = df['bb_type'].apply(lambda x: 1 if x == 'Fly_Ball' else None)
-    df['gb'] = df['bb_type'].apply(lambda x: 1 if x == 'Ground_Ball' else None)
-    df['pu'] = df['bb_type'].apply(lambda x: 1 if x == 'Popup' else None)
+    ddf['ld'] = ddf['bb_type'].apply(lambda x: 1 if x == 'Line_Drive' else None)
+    ddf['fb'] = ddf['bb_type'].apply(lambda x: 1 if x == 'Fly_Ball' else None)
+    ddf['gb'] = ddf['bb_type'].apply(lambda x: 1 if x == 'Ground_Ball' else None)
+    ddf['pu'] = ddf['bb_type'].apply(lambda x: 1 if x == 'Popup' else None)
 
-    df['single'] = df['events'].apply(lambda x: 1 if x == 'single' else None)
-    df['double'] = df['events'].apply(lambda x: 1 if x == 'double' else None)
-    df['triple'] = df['events'].apply(lambda x: 1 if x == 'triple' else None)
-    df['home_run'] = df['events'].apply(lambda x: 1 if x == 'home_run' else None)
-    df['walk'] = df['events'].apply(lambda x: 1 if x == 'walk' else None)
-    df['hit_by_pitch'] = df['events'].apply(lambda x: 1 if x == 'hit_by_pitch' else None)
-    df['sac_fly'] = df['events'].apply(lambda x: 1 if x == 'sac_fly' else None)
-    df['sac_bunt'] = df['events'].apply(lambda x: 1 if x == 'sac_bunt' else None)
-    df['field_out'] = df['events'].apply(lambda x: 1 if x == 'field_out' else None)
+    ddf['single'] = ddf['events'].apply(lambda x: 1 if x == 'single' else None)
+    ddf['double'] = ddf['events'].apply(lambda x: 1 if x == 'double' else None)
+    ddf['triple'] = ddf['events'].apply(lambda x: 1 if x == 'triple' else None)
+    ddf['home_run'] = ddf['events'].apply(lambda x: 1 if x == 'home_run' else None)
+    ddf['walk'] = ddf['events'].apply(lambda x: 1 if x == 'walk' else None)
+    ddf['hit_by_pitch'] = ddf['events'].apply(lambda x: 1 if x == 'hit_by_pitch' else None)
+    ddf['sac_fly'] = ddf['events'].apply(lambda x: 1 if x == 'sac_fly' else None)
+    ddf['sac_bunt'] = ddf['events'].apply(lambda x: 1 if x == 'sac_bunt' else None)
+    ddf['field_out'] = ddf['events'].apply(lambda x: 1 if x == 'field_out' else None)
 
-    df['inplay'] = df['type'].apply(lambda x: 1 if x == 'X' else None)
+    ddf['inplay'] = ddf['type'].apply(lambda x: 1 if x == 'X' else None)
 
-    df['weak'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 1 else None)
-    df['topped'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 2 else None)
-    df['under'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 3 else None)
-    df['flare'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 4 else None)
-    df['solid_contact'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 5 else None)
-    df['barrel'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 6 else None)
-    df['plus_lsa4'] = df['launch_speed_angle'].apply(lambda x: 1 if x >=4 else None)
-    df['cs'] = df['description'].apply(lambda x: 1 if x == 'called_strike' else None)
+    ddf['weak'] = ddf['launch_speed_angle'].apply(lambda x: 1 if x == 1 else None)
+    ddf['topped'] = ddf['launch_speed_angle'].apply(lambda x: 1 if x == 2 else None)
+    ddf['under'] = ddf['launch_speed_angle'].apply(lambda x: 1 if x == 3 else None)
+    ddf['flare'] = ddf['launch_speed_angle'].apply(lambda x: 1 if x == 4 else None)
+    ddf['solid_contact'] = ddf['launch_speed_angle'].apply(lambda x: 1 if x == 5 else None)
+    ddf['barrel'] = ddf['launch_speed_angle'].apply(lambda x: 1 if x == 6 else None)
+    ddf['plus_lsa4'] = ddf['launch_speed_angle'].apply(lambda x: 1 if x >=4 else None)
+    ddf['cs'] = ddf['description'].apply(lambda x: 1 if x == 'called_strike' else None)
 
 
-    df['game_date'] = pd.to_datetime(df['game_date'], format='mixed')
+    ddf['game_date'] = pd.to_datetime(ddf['game_date'], format='mixed')
 
     condition1 = [
-                (df['zone'] == 1) & (df['swing'] != 1),
-                (df['zone'] == 3) & (df['swing'] != 1),
-                (df['zone'] == 4) & (df['swing'] != 1),
-                (df['zone'] == 6) & (df['swing'] != 1),
-                (df['zone'] == 7) & (df['swing'] != 1),
-                (df['zone'] == 9) & (df['swing'] != 1),
+                (ddf['zone'] == 1) & (ddf['swing'] != 1),
+                (ddf['zone'] == 3) & (ddf['swing'] != 1),
+                (ddf['zone'] == 4) & (ddf['swing'] != 1),
+                (ddf['zone'] == 6) & (ddf['swing'] != 1),
+                (ddf['zone'] == 7) & (ddf['swing'] != 1),
+                (ddf['zone'] == 9) & (ddf['swing'] != 1),
     ]
 
     choicelist1 = ['Left_take','Right_take', 'Left_take', 'Right_take', 'Left_take', 'Right_take']
 
-    df['l_r'] = np.select(condition1, choicelist1, default='Not Specified')
+    ddf['l_r'] = np.select(condition1, choicelist1, default='Not Specified')
 
     condition2 = [
-                (df['zone'] == 1) & (df['swing'] != 1),
-                (df['zone'] == 2) & (df['swing'] != 1),
-                (df['zone'] == 3) & (df['swing'] != 1),
-                (df['zone'] == 7) & (df['swing'] != 1),
-                (df['zone'] == 8) & (df['swing'] != 1),
-                (df['zone'] == 9) & (df['swing'] != 1),
+                (ddf['zone'] == 1) & (ddf['swing'] != 1),
+                (ddf['zone'] == 2) & (ddf['swing'] != 1),
+                (ddf['zone'] == 3) & (ddf['swing'] != 1),
+                (ddf['zone'] == 7) & (ddf['swing'] != 1),
+                (ddf['zone'] == 8) & (ddf['swing'] != 1),
+                (ddf['zone'] == 9) & (ddf['swing'] != 1),
     ]
 
     choicelist2 = ['High_take','High_take', 'High_take', 'Low_take', 'Low_take', 'Low_take']
 
-    df['h_l'] = np.select(condition2, choicelist2, default='Not Specified')
+    ddf['h_l'] = np.select(condition2, choicelist2, default='Not Specified')
 
-    df['z_left'] = df['zone'].apply(lambda x: 1 if x == 1 or x == 4 or x== 7 else None)
-    df['z_right'] = df['zone'].apply(lambda x: 1 if x == 3 or x == 6 or x== 9 else None)
-    df['z_high'] = df['zone'].apply(lambda x: 1 if x == 1 or x == 2 or x== 3 else None)
-    df['z_low'] = df['zone'].apply(lambda x: 1 if x == 7 or x == 8 or x== 9 else None)
+    ddf['z_left'] = ddf['zone'].apply(lambda x: 1 if x == 1 or x == 4 or x== 7 else None)
+    ddf['z_right'] = ddf['zone'].apply(lambda x: 1 if x == 3 or x == 6 or x== 9 else None)
+    ddf['z_high'] = ddf['zone'].apply(lambda x: 1 if x == 1 or x == 2 or x== 3 else None)
+    ddf['z_low'] = ddf['zone'].apply(lambda x: 1 if x == 7 or x == 8 or x== 9 else None)
 
 
 
@@ -637,25 +637,25 @@ if response.status_code == 200:
 
 
     condition3 = [
-                (df['plate_x'] > -0.381) & (df['plate_x'] < -0.161) & (df['plate_z'] > df['corehigh']) & (df['plate_z'] < df['zonehigh']),
-                (df['plate_x'] > -0.161) & (df['plate_x'] < 0.161) & (df['plate_z'] > df['corehigh']) & (df['plate_z'] < df['zonehigh']),
-                (df['plate_x'] > 0.161) & (df['plate_x'] < 0.381) & (df['plate_z'] > df['corehigh']) & (df['plate_z'] < df['zonehigh']),
-                (df['plate_x'] > -0.381) & (df['plate_x'] < -0.161) & (df['plate_z'] > df['corelow']) & (df['plate_z'] < df['corehigh']),
-                (df['plate_x'] > -0.161) & (df['plate_x'] < 0.161) & (df['plate_z'] > df['corelow']) & (df['plate_z'] < df['corehigh']),
-                (df['plate_x'] > 0.161) & (df['plate_x'] < 0.381) & (df['plate_z'] > df['corelow']) & (df['plate_z'] < df['corehigh']),
-                (df['plate_x'] > -0.381) & (df['plate_x'] < -0.161) & (df['plate_z'] > df['zonelow']) & (df['plate_z'] < df['corelow']),
-                (df['plate_x'] > -0.161) & (df['plate_x'] < 0.161) & (df['plate_z'] > df['zonelow']) & (df['plate_z'] < df['corelow']),
-                (df['plate_x'] > 0.161) & (df['plate_x'] < 0.381) & (df['plate_z'] > df['zonelow']) & (df['plate_z'] < df['corelow']),
+                (ddf['plate_x'] > -0.381) & (ddf['plate_x'] < -0.161) & (ddf['plate_z'] > ddf['corehigh']) & (ddf['plate_z'] < ddf['zonehigh']),
+                (ddf['plate_x'] > -0.161) & (ddf['plate_x'] < 0.161) & (ddf['plate_z'] > ddf['corehigh']) & (ddf['plate_z'] < ddf['zonehigh']),
+                (ddf['plate_x'] > 0.161) & (ddf['plate_x'] < 0.381) & (ddf['plate_z'] > ddf['corehigh']) & (ddf['plate_z'] < ddf['zonehigh']),
+                (ddf['plate_x'] > -0.381) & (ddf['plate_x'] < -0.161) & (ddf['plate_z'] > ddf['corelow']) & (ddf['plate_z'] < ddf['corehigh']),
+                (ddf['plate_x'] > -0.161) & (ddf['plate_x'] < 0.161) & (ddf['plate_z'] > ddf['corelow']) & (ddf['plate_z'] < ddf['corehigh']),
+                (ddf['plate_x'] > 0.161) & (ddf['plate_x'] < 0.381) & (ddf['plate_z'] > ddf['corelow']) & (ddf['plate_z'] < ddf['corehigh']),
+                (ddf['plate_x'] > -0.381) & (ddf['plate_x'] < -0.161) & (ddf['plate_z'] > ddf['zonelow']) & (ddf['plate_z'] < ddf['corelow']),
+                (ddf['plate_x'] > -0.161) & (ddf['plate_x'] < 0.161) & (ddf['plate_z'] > ddf['zonelow']) & (ddf['plate_z'] < ddf['corelow']),
+                (ddf['plate_x'] > 0.161) & (ddf['plate_x'] < 0.381) & (ddf['plate_z'] > ddf['zonelow']) & (ddf['plate_z'] < ddf['corelow']),
     ]
 
     choicelist3 = ['nz1','nz2', 'nz3', 'nz4', 'core', 'nz6','nz7','nz8','nz9']
 
-    df['new_zone'] = np.select(condition3, choicelist3, default='Not Specified')
+    ddf['new_zone'] = np.select(condition3, choicelist3, default='Not Specified')
 
-    df['DH'] = df['game_id'].str[-1]
+    ddf['DH'] = ddf['game_id'].str[-1]
 
 
-    ndf = df[['game_year', 'game_date', 'inning', 'hometeam','home_score', 'awayteam','away_score',
+    ndf = ddf[['game_year', 'game_date', 'inning', 'hometeam','home_score', 'awayteam','away_score',
             'pitch_number','balls', 'strikes', 'zone', 'new_zone','stand', 'p_throw', 'p_throws', 'p_type', 'type', 'bb_type','events', 'description', 'hor_break','ver_break','plate_x','plate_z',
             'pitcherteam', 'pitname', 'pitcher','catcher','batterteam', 'batname', 'batter',
             'rel_speed(km)','release_spin_rate', 'release_spin_axis','rel_height', 'rel_side', 'extension','pitch_name', 'p_kind',
