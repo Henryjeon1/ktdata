@@ -3,8 +3,11 @@ import pymysql
 import pandas as pd
 import numpy as np
 
+# ✅ 환경 변수에서 날짜 가져오기
+PW = os.getenv("PW")
 
-db = pymysql.connect(host='14.49.30.59', port = 33067, user = 'ktwiz', passwd = 'ktwiz1234!#', db = 'ktwiz')
+
+db = pymysql.connect(host='14.49.30.59', port = 33067, user = 'ktwiz', passwd = PW, db = 'ktwiz')
 
 
 cursor = db.cursor()
