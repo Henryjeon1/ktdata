@@ -29,8 +29,10 @@ jobs:
       - name: 필요한 패키지 설치
         run: pip install pandas pyarrow requests pymysql jq
 
-      - name: 데이터 생성 실행
-        run: python data_daily_update.py ${{ github.event.inputs.date }}
+      - name: Run update script
+        env:
+          TARGET_DATE: ${{ inputs.date }}  # 🟢 입력한 날짜를 환경 변수로 설정
+        run: python data_daily_update.py
 
       - name: Release에 데이터 업로드
         run: |
