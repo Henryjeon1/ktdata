@@ -13,7 +13,9 @@ OWNER = "Henryjeon1"
 REPO = "Trackman"
 TOKEN = "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"
 
+
 # ✅ 환경 변수에서 날짜 가져오기
+PW = os.getenv("PW")
 TARGET_DATE = os.getenv("TARGET_DATE")
 
 # ✅ 만약 환경 변수가 없으면 기본값을 입력받음
@@ -69,7 +71,7 @@ if response.status_code == 200:
     df = df[df["game_date"] != TARGET_DATE]
 
     # ✅ SQL에서 새로운 TARGET_DATE 데이터 가져오기  
-    db = pymysql.connect(host='14.49.30.59', port = 33067, user = 'ktwiz', passwd = 'ktwiz1234!#', db = 'ktwiz')
+    db = pymysql.connect(host='14.49.30.59', port = 33067, user = 'ktwiz', passwd = {PW}, db = 'ktwiz')
 
 
     cursor = db.cursor()
