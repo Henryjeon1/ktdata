@@ -13,6 +13,9 @@ OWNER = "Henryjeon1"
 REPO = "Trackman"
 TOKEN = "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"
 
+# ✅ 환경 변수에서 날짜 가져오기
+TARGET_DATE = os.getenv("TARGET_DATE")
+
 # ✅ 실행 인자로 날짜 받기
 if len(sys.argv) > 1:
     TARGET_DATE = sys.argv[1]
