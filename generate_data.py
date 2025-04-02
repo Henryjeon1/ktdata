@@ -697,6 +697,6 @@ ndf['month'] = ndf['game_date'].dt.month
 
 
 # 데이터 저장 (GitHub Actions에서 실행되는 디렉토리)
-ndf.to_csv("data.csv", index=True)
+ndf.to_csv("KoreaBaseballOrganization.csv", index=True)
 
 print(f"✅ 데이터 생성 완료")
