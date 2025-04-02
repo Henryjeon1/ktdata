@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Update Full Update
+name: Full Update
 
 on:
   workflow_dispatch:  # 수동 실행 가능
@@ -36,7 +36,7 @@ jobs:
 
       - name: Release에 데이터 업로드
         run: |
-          TAG_NAME=$(date +'%Y-%m-%d')  # 오늘 날짜를 태그로 사용
+          TAG_NAME="KoreaBaseballOrganization"
           GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
           # 릴리스가 이미 존재하는지 확인
@@ -57,7 +57,7 @@ jobs:
           fi
 
           # 업로드할 파일 경로
-          FILE_PATH="data.csv"
+          FILE_PATH="KoreaBaseballOrganization.csv"
 
           # 릴리스 생성 후 업로드 URL 가져오기
           UPLOAD_URL=$(echo "$RELEASE_RESPONSE" | jq -r '.upload_url' | sed -e "s/{?name,label}//")
