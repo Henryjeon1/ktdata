@@ -613,7 +613,9 @@ ndf = df[['game_year', 'game_date', 'inning', 'hometeam','home_score', 'awayteam
           'ld','fb','gb','pu','single','double','triple','home_run','walk','hit_by_pitch','sac_fly','sac_bunt','field_out','inplay',
           'weak','topped','under','flare','solid_contact','barrel','plus_lsa4','level','DH','cs', 'Height', 'high', 'low', '2/3', '1/3', 'zonehigh', 'corehigh', 'corelow', 'zonelow',
           'x0', 'x5', 'x10', 'x15', 'x20', 'x25', 'x30', 'x35', 'x40', 'x45', 'x50',
-          'z0', 'z5', 'z10', 'z15', 'z20', 'z25', 'z30', 'z35', 'z40', 'z45', 'z50'
+          'z0', 'z5', 'z10', 'z15', 'z20', 'z25', 'z30', 'z35', 'z40', 'z45', 'z50',
+	  'NAME'
+	  
         ]]
 
 def ntype(x):
