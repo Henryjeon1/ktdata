@@ -336,7 +336,12 @@ height_df['TM_ID'] = height_df['TM_ID'].astype(str)
 height_df['game_year'] = height_df['game_year'].astype(str)
 
 
-df = pd.merge(left = df , right = height_df, how = "left", left_on = ["game_year","batter"], right_on = ["game_year", "TM_ID"] )
+height_df_h = height_df.rename(columns={'NAME': 'NAME_hitter'})
+df = pd.merge(left = df , right = height_df_h, how = "left", left_on = ["game_year","batter"], right_on = ["game_year", "TM_ID"] )
+
+height_df_p = height_df.rename(columns={'NAME': 'NAME_pitcher'})
+height_df_p = height_df_p[["game_year", "TM_ID", "NAME_pitcher"]]
+df = pd.merge(left = df , right = height_df_p, how = "left", left_on = ["game_year","pitcher"], right_on = ["game_year", "TM_ID"] )
 
 
 
@@ -614,7 +619,7 @@ ndf = df[['game_year', 'game_date', 'inning', 'hometeam','home_score', 'awayteam
           'weak','topped','under','flare','solid_contact','barrel','plus_lsa4','level','DH','cs', 'Height', 'high', 'low', '2/3', '1/3', 'zonehigh', 'corehigh', 'corelow', 'zonelow',
           'x0', 'x5', 'x10', 'x15', 'x20', 'x25', 'x30', 'x35', 'x40', 'x45', 'x50',
           'z0', 'z5', 'z10', 'z15', 'z20', 'z25', 'z30', 'z35', 'z40', 'z45', 'z50',
-	  'NAME'
+	  'NAME_hitter', 'NAME_pitcher'
 	  
         ]]
 
