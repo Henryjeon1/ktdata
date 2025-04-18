@@ -669,8 +669,8 @@ f_pitch['f_swing'] = f_pitch['swing'].apply(lambda x: 1 if x == 1 else None)
 f_swing = f_pitch[['f_swing']]
 
 inplay_df = ndf[ndf['type'] == 'X']
-inplay_df = inplay_df[['exit_speed(km)','launch_angle']]
-inplay_df.columns = ['exit_velocity','launch_angleX']
+inplay_df = inplay_df[['exit_speed(km)','launch_angle','hit_spin_rate']]
+inplay_df.columns = ['exit_velocity','launch_angleX','hit_spin']
 
 whiff = ndf[ndf['whiff'] == 1]
 whiff['z_str_swing'] = whiff['zone'].apply(lambda x: 1 if x < 10 else None)
