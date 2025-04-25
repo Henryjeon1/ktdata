@@ -286,7 +286,7 @@ WHERE
 
 -- game year
 -- gameid Like '2020%'
-substring(gameid,1,4) >= '2020'
+substring(gameid,1,4) >= '2021'
 and gameid <> '20241001-Suwon-1'
 and ((gameid >='20180401' and gameid <='20181018')
 or (gameid >='20190323' and gameid <='20191001')    
