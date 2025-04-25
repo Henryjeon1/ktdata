@@ -76,7 +76,7 @@ jobs:
           # GitHub Release에 파일 업로드
           curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
             -H "Content-Type: application/octet-stream" \
-            --data-binary @"${FILE_PATH}" \
+            --upload-file "${FILE_PATH}" \
             "${UPLOAD_URL}?name=$(basename ${FILE_PATH})"
 
           echo "✅ 파일 업로드 완료!"
