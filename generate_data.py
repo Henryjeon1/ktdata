@@ -534,6 +534,7 @@ df['double'] = df['events'].apply(lambda x: 1 if x == 'double' else None)
 df['triple'] = df['events'].apply(lambda x: 1 if x == 'triple' else None)
 df['home_run'] = df['events'].apply(lambda x: 1 if x == 'home_run' else None)
 df['walk'] = df['events'].apply(lambda x: 1 if x == 'walk' else None)
+df['strkeout'] = df['events'].apply(lambda x: 1 if x == 'strkeout' else None)
 df['hit_by_pitch'] = df['events'].apply(lambda x: 1 if x == 'hit_by_pitch' else None)
 df['sac_fly'] = df['events'].apply(lambda x: 1 if x == 'sac_fly' else None)
 df['sac_bunt'] = df['events'].apply(lambda x: 1 if x == 'sac_bunt' else None)
@@ -615,7 +616,7 @@ ndf = df[['game_year', 'game_date', 'inning', 'hometeam','home_score', 'awayteam
          'rel_speed(km)','release_spin_rate', 'release_spin_axis','rel_height', 'rel_side', 'extension','pitch_name', 'p_kind',
          'exit_speed(km)','launch_angle','launch_direction','hit_distance','hit_spin_rate','launch_speed_angle', 'contactX', 'contactY', 'contactZ', 'groundX', 'groundY', 'l_r','h_l',
          'pa', 'ab', 'hit', 'swing', 'con', 'whiff','foul','z_in','z_out','count', 'count_value', 'z_left','z_right','z_high','z_low',
-          'ld','fb','gb','pu','single','double','triple','home_run','walk','hit_by_pitch','sac_fly','sac_bunt','field_out','inplay',
+          'ld','fb','gb','pu','single','double','triple','home_run','walk','strkeout','hit_by_pitch','sac_fly','sac_bunt','field_out','inplay',
           'weak','topped','under','flare','solid_contact','barrel','plus_lsa4','level','DH','cs', 'Height', 'high', 'low', '2/3', '1/3', 'zonehigh', 'corehigh', 'corelow', 'zonelow',
           'x0', 'x5', 'x10', 'x15', 'x20', 'x25', 'x30', 'x35', 'x40', 'x45', 'x50',
           'z0', 'z5', 'z10', 'z15', 'z20', 'z25', 'z30', 'z35', 'z40', 'z45', 'z50',
