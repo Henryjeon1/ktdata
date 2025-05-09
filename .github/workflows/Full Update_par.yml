@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Full Update(par)
+name: Full Update_par
 
 on:
   workflow_dispatch:  # 수동 실행 가능
