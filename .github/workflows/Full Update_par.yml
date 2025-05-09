@@ -29,7 +29,7 @@ jobs:
         run: pip install pandas pyarrow requests pymysql jq
       
       - name: Run update script
-        run: python generate_data(par).py
+        run: python generate_data_par.py
         env:
           PW: ${{ inputs.pw }}  # 🟢 입력한 비밀번호를 환경 변수로 설정
 
