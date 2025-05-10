@@ -284,7 +284,7 @@ gameid
 	
 WHERE 
 
-substring(gameid,1,4) >= '2020'
+substring(gameid,1,4) >= '2021'
 and gameid <> '20241001-Suwon-1'
 and level = 'KBO Minors'
 
