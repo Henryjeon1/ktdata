@@ -287,7 +287,7 @@ WHERE
 substring(gameid,1,4) >= '2020'
 and gameid <> '20241001-Suwon-1'
 and (
-		(level IN ('KoreaBaseballOrganization') and
+		(level = 'KoreaBaseballOrganization' and
 			(
 				(gameid >='20180401' and gameid <='20181018')
 				or (gameid >='20190323' and gameid <='20191001')    
@@ -299,10 +299,9 @@ and (
 				or (gameid >='20250321')
 			)
 		)
--- 		or (level IN ('KBO Minors')
--- 		)
+		or (level = 'KBO Minors'
+		)
 	)
-
 
 order by gameid, pitchno 
 
