@@ -2,6 +2,11 @@ name: Full Update_par
 
 on:
   workflow_dispatch:  # 수동 실행 가능
+    inputs:
+      pw:
+        description: "데이터베이스 비밀번호"
+        required: true
+        type: string  # 입력 타입을 문자열로 설정
 
 jobs:
   update-data:
@@ -25,7 +30,7 @@ jobs:
       - name: Run KBO 데이터 생성
         run: python KBO_generate_data_par.py
         env:
-          PW: ${{ secrets.PW }}
+          PW: ${{ inputs.pw }}
 
       - name: Release에 데이터 업로드
         run: |
