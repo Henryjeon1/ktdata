@@ -34,17 +34,12 @@ jobs:
         env:
           PW: ${{ inputs.pw }}
 
-      - name: Run Minor 데이터 생성
-        run: python Minor_generate_data_par.py
-        env:
-          PW: ${{ inputs.pw }}
-
-
-      - name: Release에 두 파일 업로드
+      - name: Release에 데이터 업로드
         run: |
           TAG_NAME="KoreaBaseballOrganization"
           GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
+          # 릴리스가 이미 존재하는지 확인
           API_URL="https://api.github.com/repos/${{ github.repository }}/releases"
           RELEASE_EXISTS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
             "$API_URL/tags/${TAG_NAME}")
@@ -57,21 +52,31 @@ jobs:
             curl -s -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
               "$API_URL/$RELEASE_ID"
           fi
-
+          
+          # 새로운 릴리스 생성
           echo "🚀 새로운 릴리스를 생성합니다."
           RELEASE_RESPONSE=$(curl -s -X POST -H "Authorization: token $GITHUB_TOKEN" \
             -d "{\"tag_name\": \"${TAG_NAME}\", \"name\": \"${TAG_NAME}\", \"body\": \"업데이트된 릴리스입니다.\"}" \
             "$API_URL")
 
+          # 업로드할 파일 경로
+          FILE_PATH="KoreaBaseballOrganization.parquet"
+
+          # 릴리스 생성 후 업로드 URL 가져오기
           UPLOAD_URL=$(echo "$RELEASE_RESPONSE" | jq -r '.upload_url' | sed -e "s/{?name,label}//")
 
-          for FILE_PATH in "KoreaBaseballOrganization.parquet" "Minor.parquet"
-          do
-            echo "📤 ${FILE_PATH} 업로드 중..."
-            curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Content-Type: application/octet-stream" \
-              --upload-file "${FILE_PATH}" \
-              "${UPLOAD_URL}?name=$(basename ${FILE_PATH})"
-          done
+          # 업로드 URL이 정상인지 확인
+          if [[ "$UPLOAD_URL" == "null" || -z "$UPLOAD_URL" ]]; then
+            echo "❌ 업로드 URL을 가져오지 못했습니다."
+            exit 1
+          fi
 
-          echo "✅ 모든 파일 업로드 완료!"
+          echo "🔗 업로드 URL: $UPLOAD_URL"
+
+          # GitHub Release에 파일 업로드
+          curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Content-Type: application/octet-stream" \
+            --upload-file "${FILE_PATH}" \
+            "${UPLOAD_URL}?name=$(basename ${FILE_PATH})"
+
+          echo "✅ 파일 업로드 완료!"
