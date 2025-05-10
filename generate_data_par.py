@@ -286,22 +286,20 @@ WHERE
 
 -- game year
 -- gameid Like '2020%'
-substring(gameid,1,4) >= '2021'
+substring(gameid,1,4) >= '2020'
 and gameid <> '20241001-Suwon-1'
-and ((gameid >='20180401' and gameid <='20181018')
+and ((level IN ('KoreaBaseballOrganization') and
+((gameid >='20180401' and gameid <='20181018')
 or (gameid >='20190323' and gameid <='20191001')    
 or (gameid >='20200504' and gameid <='20201100')
 or (gameid >='20210402' and gameid <='20211100')
 or (gameid >='20220401' and gameid <='20221012')
 or (gameid >='20230401' and gameid <='20231018')
 or (gameid >='20240323' and gameid <='20241002')
-or (gameid >='20250321')
-)
+or (gameid >='20250321')))
 
 
-
--- league(aaa, KoreaBaseballOrganization, npb, mlb, aa)
-AND level IN ('KoreaBaseballOrganization')
+or (level IN ('KBO Minors')))
 
 order by gameid, pitchno 
 
