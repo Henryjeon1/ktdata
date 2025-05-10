@@ -1,4 +1,4 @@
-name: Update Minor League Data
+name: Full Update Minor_par
 
 on:
   workflow_dispatch:
