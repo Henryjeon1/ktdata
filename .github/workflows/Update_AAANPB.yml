@@ -3,7 +3,7 @@ name: Full Update AAANPB_par
 
 on:
   workflow_run:
-    workflows: ["Update_minor"]
+    workflows: ["Full Update Minor_par"]
     types:
       - completed  # 첫 워크플로우가 완료되면 자동 실행
   workflow_dispatch:  # 수동 실행도 허용
