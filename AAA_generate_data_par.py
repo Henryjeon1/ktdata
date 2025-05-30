@@ -286,7 +286,7 @@ WHERE
 
 substring(gameid,1,4) >= '2023'
 and 
-level in ('AAA','NPB') 
+level = 'AAA'
 
 order by gameid, pitchno 
 
@@ -691,6 +691,6 @@ ndf['month'] = ndf['game_date'].dt.month
 
 
 # Parquet 파일로 저장 (GitHub Actions에서 실행되는 디렉토리)
-ndf.to_parquet("AAANPB.parquet", index=True, engine="pyarrow")  # 또는 engine="fastparquet"
+ndf.to_parquet("AAA.parquet", index=True, engine="pyarrow")  # 또는 engine="fastparquet"
 
 print("✅ Parquet 데이터 생성 완료")
