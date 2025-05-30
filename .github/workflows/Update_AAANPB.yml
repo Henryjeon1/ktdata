@@ -32,7 +32,7 @@ jobs:
         env:
           PW: ${{ secrets.PW }}
 
-      - name: 릴리스에 Minor 데이터 업로드
+      - name: 릴리스에 AAANPB 데이터 업로드
         run: |
           TAG_NAME="KoreaBaseballOrganization"
           FILE_PATH="AAANPB.parquet"
