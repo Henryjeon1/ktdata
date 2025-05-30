@@ -284,7 +284,7 @@ gameid
 	
 WHERE 
 
-substring(gameid,1,4) >= '2021'
+substring(gameid,1,4) >= '2023'
 and 
 level in ('AAA','NPB') 
 
