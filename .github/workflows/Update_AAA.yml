@@ -1,4 +1,4 @@
-name: Full Update AAANPB_par
+name: Full Update AAA_par
 
 
 on:
@@ -32,10 +32,10 @@ jobs:
         env:
           PW: ${{ secrets.PW }}
 
-      - name: 릴리스에 AAANPB 데이터 업로드
+      - name: 릴리스에 AAA 데이터 업로드
         run: |
           TAG_NAME="KoreaBaseballOrganization"
-          FILE_PATH="AAANPB.parquet"
+          FILE_PATH="AAA.parquet"
           GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           API_URL="https://api.github.com/repos/${{ github.repository }}/releases"
 
