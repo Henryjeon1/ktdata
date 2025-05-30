@@ -28,7 +28,7 @@ jobs:
         run: pip install pandas pyarrow requests pymysql jq
 
       - name: AAANPB 리그 데이터 생성
-        run: python AAANPB_generate_data_par.py
+        run: python AAA_generate_data_par.py
         env:
           PW: ${{ secrets.PW }}
 
