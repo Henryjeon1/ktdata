@@ -673,6 +673,7 @@ ndf = ndf.join(z_inplay, how='outer')
 ndf = ndf.join(o_inplay, how='outer')
 
 ndf['f_pitch'] = ndf['count'].apply(lambda x: 1 if x == '0-0' else None)
+ndf['S'] = np.where(ndf['type'].isin(['S', 'X']), 1, 0)
 
 ndf['Left_take'] = ndf['l_r'].apply(lambda x: 1 if x == 'Left_take' else None)
 ndf['Right_take'] = ndf['l_r'].apply(lambda x: 1 if x == 'Right_take' else None)
