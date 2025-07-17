@@ -136,7 +136,7 @@ gameid
 , round(ANGLE,0) AS launch_angle
 
 -- hangtime
-, round(HangTime,0) AS HangTime
+, round(HangTime,2) AS HangTime
 
 -- release_extension
 , round(SpinRate,0) as release_spin_rate	, round(SpinAxis,1) as release_spin_axis ,  round(Extension * 3.28084,2) as release_extension
