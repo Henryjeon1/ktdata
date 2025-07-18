@@ -6,8 +6,7 @@ import numpy as np
 # ✅ 환경 변수에서 날짜 가져오기
 PW = os.getenv("PW")
 
-
-db = pymysql.connect(host='14.49.30.59', port = 33067, user = 'ktwiz', passwd = PW, db = 'ktwiz')
+db = pymysql.connect(host='14.49.30.59', port = 33067, user = 'ktwiz', passwd = 'ktwiz1234!#', db = 'ktwiz')
 
 
 cursor = db.cursor()
@@ -216,8 +215,7 @@ gameid
 	WHEN PITKIND = 'FC' THEN 'Cutter' ELSE PITKIND END AS pitch_name
 -- , PlateLocSide, PlateLocHeight
 
-, home_score_cn
-, away_score_cn
+
 , LEVEL
 , vertrelangle
 , case when bearing >= 0 then 'R' WHEN BEARING < 0 THEN 'L' ELSE NULL END as direction
@@ -245,30 +243,19 @@ gameid
 	FROM 
 		
 		(
-		SELECT a.*, substring(GameID ,1,4) as SEASON
-		, CASE WHEN pit_kind_cd = '31' THEN 'FF'
-		WHEN pit_kind_cd = '32' THEN 'CU'
-		WHEN pit_kind_cd = '33' THEN 'SL'
-		WHEN pit_kind_cd = '34' THEN 'CH'
-		WHEN pit_kind_cd = '35' THEN 'FS'
-		WHEN pit_kind_cd = '36' THEN 'SI'
-		WHEN pit_kind_cd = '37' THEN 'FT'
-		WHEN pit_kind_cd = '38' THEN 'FC'
-  		WHEN pit_kind_cd = '131' THEN 'ST'
-  		WHEN PIT_KIND_CD IS NULL and (AUTOPITCHTYPE = 'Fastball' OR AUTOPITCHTYPE = 'Four-Seam')  then 'FF'
-		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Sinker' then 'SI' 
-		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Curveball' then 'CU' 
-		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Slider' then 'SL'
-		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Changeup' then 'CH'
-		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Splitter' then 'FS'
-		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Cutter' then 'FC'
-  		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Sweeper' then 'ST'
+		SELECT a.*, substring(GameID ,1,4) as SEASON,
+  		case WHEN   (AUTOPITCHTYPE = 'Fastball' OR AUTOPITCHTYPE = 'Four-Seam')  then 'FF'
+		WHEN  AUTOPITCHTYPE = 'Sinker' then 'SI' 
+		WHEN  AUTOPITCHTYPE = 'Curveball' then 'CU' 
+		WHEN  AUTOPITCHTYPE = 'Slider' then 'SL'
+		WHEN  AUTOPITCHTYPE = 'Changeup' then 'CH'
+		WHEN  AUTOPITCHTYPE = 'Splitter' then 'FS'
+		WHEN  AUTOPITCHTYPE = 'Cutter' then 'FC'
+  		WHEN  AUTOPITCHTYPE = 'Sweeper' then 'ST'
 		ELSE 'OT' END  AS PITKIND
 		
 		, PITCHER as pitname, BATTER as batname 
 	 
-		, POS1_P_ID, POS2_P_ID, POS3_P_ID, POS4_P_ID, POS5_P_ID, POS6_P_ID, POS7_P_ID, POS8_P_ID, POS9_P_ID
-		, home_score_cn , away_score_cn
  		, c.x0 as px0, x5, x10, x15, x20, x25, x30, x35, x40, x45, x50
 		, c.z0 as pz0, z5, z10, z15, z20, z25, z30, z35, z40, z45, z50
 
@@ -276,9 +263,6 @@ gameid
 			pda_trackman a
 		  -- JOIN
 			Left outer join 
-			pda_analyzer b
-			ON a.game_seq = b.game_seq AND a.pit_seq = b.pit_seq
-   			Left outer join 
 			pda_calculate c
 			ON a.game_seq = c.game_seq AND a.PitchNo = c.pitch_no
 			
@@ -302,7 +286,7 @@ raw = cursor.fetchall()
 
 df=pd.DataFrame(raw, columns = ['game_id','pitch_type', 'game_date', 'release_speed', 'release_pos_x', 'release_pos_z',  'pitname', 'batname', 'batter', 'pitcher', 'events', 'description', 'zone', 'des', 'stand', 'p_throw', 'pitcherteam','batterteam', 'hometeam' , 'awayteam',
                                 'type', 'bb_type', 'balls', 'strikes', 'pfx_x', 'pfx_z', 'plate_x', 'plate_z', 'out_when_up', 'inning', 'inning_topbot', 'hit_distance_sc',
-                                'launch_speed','launch_angle','HangTime,'release_spin_rate','release_spin_axis', 'release_extension',
+                                'launch_speed','launch_angle','HangTime','release_spin_rate','release_spin_axis', 'release_extension',
                                 'launch_speed_angle','pitch_number','PAofinning','pitch_name','home_score','away_score','level','verrelangle','launch_direction', 'contactX' , 'contactY' , 'contactZ', 'groundX','groundY','game_year','hit_spin_rate', 'catcher',
                                 'x0', 'x5', 'x10', 'x15', 'x20', 'x25', 'x30', 'x35', 'x40', 'x45', 'x50',
                                 'z0', 'z5', 'z10', 'z15', 'z20', 'z25', 'z30', 'z35', 'z40', 'z45', 'z50'])
