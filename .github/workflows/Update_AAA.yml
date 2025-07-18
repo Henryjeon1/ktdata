@@ -9,7 +9,7 @@ on:
   workflow_dispatch:  # 수동 실행도 허용
 
 jobs:
-  update-AAANPB:
+  update-AAA:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
@@ -27,7 +27,7 @@ jobs:
       - name: 필요한 패키지 설치
         run: pip install pandas pyarrow requests pymysql jq
 
-      - name: AAANPB 리그 데이터 생성
+      - name: AAA 리그 데이터 생성
         run: python AAA_generate_data_par.py
         env:
           PW: ${{ secrets.PW }}
