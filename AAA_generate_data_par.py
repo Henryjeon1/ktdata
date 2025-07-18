@@ -582,7 +582,7 @@ df['new_zone'] = np.select(condition3, choicelist3, default='Not Specified')
 df['DH'] = df['game_id'].str[-1]
 
 
-ndf = df[['game_year', 'game_date', 'inning', 'hometeam','home_score', 'awayteam','away_score',
+ndf = df[['game_year', 'game_date', 'inning', 'hometeam','awayteam',
          'pitch_number','balls', 'strikes', 'zone', 'new_zone','stand', 'p_throw', 'p_throws', 'p_type', 'type', 'bb_type','events', 'description', 'hor_break','ver_break','plate_x','plate_z',
          'pitcherteam', 'pitname', 'pitcher','catcher','batterteam', 'batname', 'batter',
          'rel_speed(km)','release_spin_rate', 'release_spin_axis','rel_height', 'rel_side', 'extension','pitch_name', 'p_kind',
