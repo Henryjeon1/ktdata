@@ -38,11 +38,12 @@ jobs:
 
           if [[ "$RELEASE_EXISTS" == *"Not Found"* ]]; then
             echo "🔄 릴리스가 존재하지 않음. 새로 생성합니다."
+            RELEASE_RESPONSE=$(curl -s -X POST -H "Authorization: token $GITHUB_TOKEN" \
+              -d "{\"tag_name\": \"${TAG_NAME}\", \"name\": \"${TAG_NAME}\", \"body\": \"업데이트된 릴리스입니다.\"}" \
+              "$API_URL")
           else
-            echo "🧹 기존 릴리스를 삭제합니다."
-            RELEASE_ID=$(echo "$RELEASE_EXISTS" | jq -r '.id')
-            curl -s -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
-              "$API_URL/$RELEASE_ID"
+            echo "✅ 릴리스가 이미 존재합니다. 그대로 사용합니다."
+            RELEASE_RESPONSE="$RELEASE_EXISTS"
           fi
 
           echo "🚀 새로운 릴리스를 생성합니다."
