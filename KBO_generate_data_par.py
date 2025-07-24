@@ -3,6 +3,8 @@ import pymysql
 import pandas as pd
 import numpy as np
 import time
+from tqdm import tqdm
+
 
 
 # ✅ 환경 변수에서 날짜 가져오기
