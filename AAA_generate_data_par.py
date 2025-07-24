@@ -2,11 +2,16 @@ import os
 import pymysql
 import pandas as pd
 import numpy as np
+import time
+from tqdm import tqdm
+
+
 
 # ✅ 환경 변수에서 날짜 가져오기
 PW = os.getenv("PW")
 
-db = pymysql.connect(host='14.49.30.59', port = 33067, user = 'ktwiz', passwd = 'ktwiz1234!#', db = 'ktwiz')
+
+db = pymysql.connect(host='14.49.30.59', port = 33067, user = 'ktwiz', passwd = PW, db = 'ktwiz')
 
 
 cursor = db.cursor()
@@ -215,7 +220,8 @@ gameid
 	WHEN PITKIND = 'FC' THEN 'Cutter' ELSE PITKIND END AS pitch_name
 -- , PlateLocSide, PlateLocHeight
 
-
+, home_score_cn
+, away_score_cn
 , LEVEL
 , vertrelangle
 , case when bearing >= 0 then 'R' WHEN BEARING < 0 THEN 'L' ELSE NULL END as direction
@@ -239,6 +245,7 @@ gameid
 , HitTrajectoryYc0, HitTrajectoryYc1, HitTrajectoryYc2, HitTrajectoryYc3, HitTrajectoryYc4, HitTrajectoryYc5, HitTrajectoryYc6, HitTrajectoryYc7, HitTrajectoryYc8
 , HitTrajectoryZc0, HitTrajectoryZc1, HitTrajectoryZc2, HitTrajectoryZc3, HitTrajectoryZc4, HitTrajectoryZc5, HitTrajectoryZc6, HitTrajectoryZc7, HitTrajectoryZc8
 
+
 -- trace
 , px0, x5, x10, x15, x20, x25, x30, x35, x40, x45, x50
 , pz0, z5, z10, z15, z20, z25, z30, z35, z40, z45, z50
@@ -247,19 +254,30 @@ gameid
 	FROM 
 		
 		(
-		SELECT a.*, substring(GameID ,1,4) as SEASON,
-  		case WHEN   (AUTOPITCHTYPE = 'Fastball' OR AUTOPITCHTYPE = 'Four-Seam')  then 'FF'
-		WHEN  AUTOPITCHTYPE = 'Sinker' then 'SI' 
-		WHEN  AUTOPITCHTYPE = 'Curveball' then 'CU' 
-		WHEN  AUTOPITCHTYPE = 'Slider' then 'SL'
-		WHEN  AUTOPITCHTYPE = 'Changeup' then 'CH'
-		WHEN  AUTOPITCHTYPE = 'Splitter' then 'FS'
-		WHEN  AUTOPITCHTYPE = 'Cutter' then 'FC'
-  		WHEN  AUTOPITCHTYPE = 'Sweeper' then 'ST'
+		SELECT a.*, substring(GameID ,1,4) as SEASON
+		, CASE WHEN pit_kind_cd = '31' THEN 'FF'
+		WHEN pit_kind_cd = '32' THEN 'CU'
+		WHEN pit_kind_cd = '33' THEN 'SL'
+		WHEN pit_kind_cd = '34' THEN 'CH'
+		WHEN pit_kind_cd = '35' THEN 'FS'
+		WHEN pit_kind_cd = '36' THEN 'SI'
+		WHEN pit_kind_cd = '37' THEN 'FT'
+		WHEN pit_kind_cd = '38' THEN 'FC'
+  		WHEN pit_kind_cd = '131' THEN 'ST'
+  		WHEN PIT_KIND_CD IS NULL and (AUTOPITCHTYPE = 'Fastball' OR AUTOPITCHTYPE = 'Four-Seam')  then 'FF'
+		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Sinker' then 'SI' 
+		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Curveball' then 'CU' 
+		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Slider' then 'SL'
+		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Changeup' then 'CH'
+		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Splitter' then 'FS'
+		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Cutter' then 'FC'
+  		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Sweeper' then 'ST'
 		ELSE 'OT' END  AS PITKIND
 		
 		, PITCHER as pitname, BATTER as batname 
 	 
+		, POS1_P_ID, POS2_P_ID, POS3_P_ID, POS4_P_ID, POS5_P_ID, POS6_P_ID, POS7_P_ID, POS8_P_ID, POS9_P_ID
+		, home_score_cn , away_score_cn
  		, c.x0 as px0, x5, x10, x15, x20, x25, x30, x35, x40, x45, x50
 		, c.z0 as pz0, z5, z10, z15, z20, z25, z30, z35, z40, z45, z50
 
@@ -267,6 +285,9 @@ gameid
 			pda_trackman a
 		  -- JOIN
 			Left outer join 
+			pda_analyzer b
+			ON a.game_seq = b.game_seq AND a.pit_seq = b.pit_seq
+   			Left outer join 
 			pda_calculate c
 			ON a.game_seq = c.game_seq AND a.PitchNo = c.pitch_no
 			
@@ -291,11 +312,11 @@ raw = cursor.fetchall()
 df=pd.DataFrame(raw, columns = ['game_id','pitch_type', 'game_date', 'release_speed', 'release_pos_x', 'release_pos_z',  'pitname', 'batname', 'batter', 'pitcher', 'events', 'description', 'zone', 'des', 'stand', 'p_throw', 'pitcherteam','batterteam', 'hometeam' , 'awayteam',
                                 'type', 'bb_type', 'balls', 'strikes', 'pfx_x', 'pfx_z', 'plate_x', 'plate_z', 'out_when_up', 'inning', 'inning_topbot', 'hit_distance_sc',
                                 'launch_speed','launch_angle','HangTime','release_spin_rate','release_spin_axis', 'release_extension',
-                                'launch_speed_angle','pitch_number','PAofinning','pitch_name','level','verrelangle','launch_direction', 'contactX' , 'contactY' , 'contactZ', 'groundX','groundY','game_year','hit_spin_rate', 'catcher',
-                                'HitTrajectoryXc0', 'HitTrajectoryXc1', 'HitTrajectoryXc2', 'HitTrajectoryXc3', 'HitTrajectoryXc4', 'HitTrajectoryXc5', 'HitTrajectoryXc6', 'HitTrajectoryXc7', 'HitTrajectoryXc8',
+                                'launch_speed_angle','pitch_number','PAofinning','pitch_name','home_score','away_score','level','verrelangle','launch_direction', 'contactX' , 'contactY' , 'contactZ', 'groundX','groundY','game_year','hit_spin_rate', 'catcher',
+				'HitTrajectoryXc0', 'HitTrajectoryXc1', 'HitTrajectoryXc2', 'HitTrajectoryXc3', 'HitTrajectoryXc4', 'HitTrajectoryXc5', 'HitTrajectoryXc6', 'HitTrajectoryXc7', 'HitTrajectoryXc8',
                                 'HitTrajectoryYc0', 'HitTrajectoryYc1', 'HitTrajectoryYc2', 'HitTrajectoryYc3', 'HitTrajectoryYc4', 'HitTrajectoryYc5', 'HitTrajectoryYc6', 'HitTrajectoryYc7', 'HitTrajectoryYc8',
                                 'HitTrajectoryZc0', 'HitTrajectoryZc1', 'HitTrajectoryZc2', 'HitTrajectoryZc3', 'HitTrajectoryZc4', 'HitTrajectoryZc5', 'HitTrajectoryZc6', 'HitTrajectoryZc7', 'HitTrajectoryZc8',
-				'x0', 'x5', 'x10', 'x15', 'x20', 'x25', 'x30', 'x35', 'x40', 'x45', 'x50',
+                                'x0', 'x5', 'x10', 'x15', 'x20', 'x25', 'x30', 'x35', 'x40', 'x45', 'x50',
                                 'z0', 'z5', 'z10', 'z15', 'z20', 'z25', 'z30', 'z35', 'z40', 'z45', 'z50'])
 
 df['plate_x'] = df['plate_x'] * -1.0
@@ -497,39 +518,47 @@ def count(x):
   elif x == '3-1':
     return 'Hitter'
 
+# apply count 함수는 벡터화 불가하니 실행
 df['count_value'] = df['count'].apply(lambda x: count(x))
 
-df['after_2s'] = df['count_value'].apply(lambda x: 1 if x == 'After_2S' else None)
-df['hitting'] = df['count_value'].apply(lambda x: 1 if x == 'Hitting' else None)
-df['else'] = df['count_value'].apply(lambda x: 1 if x == 'Else' else None)
+# 각 컬럼 생성 - tqdm으로 진행 상태 출력
+progress_cols = {
+    'after_2s':        df['count_value'] == 'After_2S',
+    'hitting':         df['count_value'] == 'Hitting',
+    'else':            df['count_value'] == 'Else',
+    
+    'ld':              df['bb_type'] == 'Line_Drive',
+    'fb':              df['bb_type'] == 'Fly_Ball',
+    'gb':              df['bb_type'] == 'Ground_Ball',
+    'pu':              df['bb_type'] == 'Popup',
 
-df['ld'] = df['bb_type'].apply(lambda x: 1 if x == 'Line_Drive' else None)
-df['fb'] = df['bb_type'].apply(lambda x: 1 if x == 'Fly_Ball' else None)
-df['gb'] = df['bb_type'].apply(lambda x: 1 if x == 'Ground_Ball' else None)
-df['pu'] = df['bb_type'].apply(lambda x: 1 if x == 'Popup' else None)
+    'single':          df['events'] == 'single',
+    'double':          df['events'] == 'double',
+    'triple':          df['events'] == 'triple',
+    'home_run':        df['events'] == 'home_run',
+    'walk':            df['events'] == 'walk',
+    'strkeout':        df['events'] == 'strkeout',
+    'hit_by_pitch':    df['events'] == 'hit_by_pitch',
+    'sac_fly':         df['events'] == 'sac_fly',
+    'sac_bunt':        df['events'] == 'sac_bunt',
+    'field_out':       df['events'] == 'field_out',
 
-df['single'] = df['events'].apply(lambda x: 1 if x == 'single' else None)
-df['double'] = df['events'].apply(lambda x: 1 if x == 'double' else None)
-df['triple'] = df['events'].apply(lambda x: 1 if x == 'triple' else None)
-df['home_run'] = df['events'].apply(lambda x: 1 if x == 'home_run' else None)
-df['walk'] = df['events'].apply(lambda x: 1 if x == 'walk' else None)
-df['strkeout'] = df['events'].apply(lambda x: 1 if x == 'strkeout' else None)
-df['hit_by_pitch'] = df['events'].apply(lambda x: 1 if x == 'hit_by_pitch' else None)
-df['sac_fly'] = df['events'].apply(lambda x: 1 if x == 'sac_fly' else None)
-df['sac_bunt'] = df['events'].apply(lambda x: 1 if x == 'sac_bunt' else None)
-df['field_out'] = df['events'].apply(lambda x: 1 if x == 'field_out' else None)
+    'inplay':          df['type'] == 'X',
 
-df['inplay'] = df['type'].apply(lambda x: 1 if x == 'X' else None)
+    'weak':            df['launch_speed_angle'] == 1,
+    'topped':          df['launch_speed_angle'] == 2,
+    'under':           df['launch_speed_angle'] == 3,
+    'flare':           df['launch_speed_angle'] == 4,
+    'solid_contact':   df['launch_speed_angle'] == 5,
+    'barrel':          df['launch_speed_angle'] == 6,
+    'plus_lsa4':       df['launch_speed_angle'] >= 4,
 
-df['weak'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 1 else None)
-df['topped'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 2 else None)
-df['under'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 3 else None)
-df['flare'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 4 else None)
-df['solid_contact'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 5 else None)
-df['barrel'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 6 else None)
-df['plus_lsa4'] = df['launch_speed_angle'].apply(lambda x: 1 if x >=4 else None)
-df['cs'] = df['description'].apply(lambda x: 1 if x == 'called_strike' else None)
+    'cs':              df['description'] == 'called_strike'
+}
 
+# tqdm으로 진행 상태 출력
+for col_name, condition in tqdm(progress_cols.items(), desc="🔄 Creating columns"):
+    df[col_name] = condition.astype('Int64')
 
 df['game_date'] = pd.to_datetime(df['game_date'], format='mixed')
 
@@ -589,7 +618,7 @@ df['new_zone'] = np.select(condition3, choicelist3, default='Not Specified')
 df['DH'] = df['game_id'].str[-1]
 
 
-ndf = df[['game_year', 'game_date', 'inning', 'hometeam','awayteam',
+ndf = df[['game_year', 'game_date', 'inning', 'hometeam','home_score', 'awayteam','away_score',
          'pitch_number','balls', 'strikes', 'zone', 'new_zone','stand', 'p_throw', 'p_throws', 'p_type', 'type', 'bb_type','events', 'description', 'hor_break','ver_break','plate_x','plate_z',
          'pitcherteam', 'pitname', 'pitcher','catcher','batterteam', 'batname', 'batter',
          'rel_speed(km)','release_spin_rate', 'release_spin_axis','rel_height', 'rel_side', 'extension','pitch_name', 'p_kind',
@@ -597,13 +626,12 @@ ndf = df[['game_year', 'game_date', 'inning', 'hometeam','awayteam',
          'pa', 'ab', 'hit', 'swing', 'con', 'whiff','foul','z_in','z_out','count', 'count_value', 'z_left','z_right','z_high','z_low',
           'ld','fb','gb','pu','single','double','triple','home_run','walk','strkeout','hit_by_pitch','sac_fly','sac_bunt','field_out','inplay',
           'weak','topped','under','flare','solid_contact','barrel','plus_lsa4','level','DH','cs', 'Height', 'high', 'low', '2/3', '1/3', 'zonehigh', 'corehigh', 'corelow', 'zonelow',
-	  'x0', 'x5', 'x10', 'x15', 'x20', 'x25', 'x30', 'x35', 'x40', 'x45', 'x50',
+          'x0', 'x5', 'x10', 'x15', 'x20', 'x25', 'x30', 'x35', 'x40', 'x45', 'x50',
           'z0', 'z5', 'z10', 'z15', 'z20', 'z25', 'z30', 'z35', 'z40', 'z45', 'z50',
 	  'HitTrajectoryXc0', 'HitTrajectoryXc1', 'HitTrajectoryXc2', 'HitTrajectoryXc3', 'HitTrajectoryXc4', 'HitTrajectoryXc5', 'HitTrajectoryXc6', 'HitTrajectoryXc7', 'HitTrajectoryXc8',
           'HitTrajectoryYc0', 'HitTrajectoryYc1', 'HitTrajectoryYc2', 'HitTrajectoryYc3', 'HitTrajectoryYc4', 'HitTrajectoryYc5', 'HitTrajectoryYc6', 'HitTrajectoryYc7', 'HitTrajectoryYc8',
           'HitTrajectoryZc0', 'HitTrajectoryZc1', 'HitTrajectoryZc2', 'HitTrajectoryZc3', 'HitTrajectoryZc4', 'HitTrajectoryZc5', 'HitTrajectoryZc6', 'HitTrajectoryZc7', 'HitTrajectoryZc8',
 	  'NAME_batter', 'NAME_pitcher'
-	  
         ]]
 
 def ntype(x):
@@ -629,55 +657,40 @@ def ntype(x):
 
 ndf['ntype'] = ndf['description'].apply(lambda x: ntype(x))
 
-z_df = ndf[ndf['zone'] < 10]
-z_df['z_swing'] = z_df['swing'].apply(lambda x: 1 if x == 1 else None)
-z_df['z_con'] = z_df['con'].apply(lambda x: 1 if x == 1 else None)
-z_df['z_inplay'] = z_df['inplay'].apply(lambda x: 1 if x == 1 else None)
+# zone 기반 분류
+ndf['z_swing']    = np.where((ndf['zone'] < 10) & (ndf['swing'] == 1), 1, None)
+ndf['z_con']      = np.where((ndf['zone'] < 10) & (ndf['con'] == 1), 1, None)
+ndf['z_inplay']   = np.where((ndf['zone'] < 10) & (ndf['inplay'] == 1), 1, None)
 
-z_swing = z_df[['z_swing']]
-z_con = z_df[['z_con']]
-z_inplay = z_df[['z_inplay']]
+ndf['o_swing']    = np.where((ndf['zone'] > 10) & (ndf['swing'] == 1), 1, None)
+ndf['o_con']      = np.where((ndf['zone'] > 10) & (ndf['con'] == 1), 1, None)
+ndf['o_inplay']   = np.where((ndf['zone'] > 10) & (ndf['inplay'] == 1), 1, None)
 
-o_df = ndf[ndf['zone'] > 10]
-o_df['o_swing'] = o_df['swing'].apply(lambda x: 1 if x == 1 else None)
-o_df['o_con'] = o_df['con'].apply(lambda x: 1 if x == 1 else None)
-o_df['o_inplay'] = o_df['inplay'].apply(lambda x: 1 if x == 1 else None)
+# first pitch
+ndf['f_swing']    = np.where((ndf['count'] == '0-0') & (ndf['swing'] == 1), 1, None)
+ndf['f_pitch']    = np.where(ndf['count'] == '0-0', 1, None)
 
-o_swing = o_df[['o_swing']]
-o_con = o_df[['o_con']]
-o_inplay = o_df[['o_inplay']]
+# whiff zone strike swing
+ndf['z_str_swing'] = np.where((ndf['whiff'] == 1) & (ndf['zone'] < 10), 1, None)
 
-f_pitch = ndf[ndf['count'] == '0-0']
-f_pitch['f_swing'] = f_pitch['swing'].apply(lambda x: 1 if x == 1 else None)
-f_swing = f_pitch[['f_swing']]
+# inplay 관련 변수 정리
+inplay_mask = ndf['type'] == 'X'
+ndf.loc[inplay_mask, 'exit_velocity'] = ndf.loc[inplay_mask, 'exit_speed(km)']
+ndf.loc[inplay_mask, 'launch_angleX'] = ndf.loc[inplay_mask, 'launch_angle']
+ndf.loc[inplay_mask, 'hit_spin']      = ndf.loc[inplay_mask, 'hit_spin_rate']
+ndf.loc[inplay_mask, 'hang_time']     = ndf.loc[inplay_mask, 'HangTime']
 
-inplay_df = ndf[ndf['type'] == 'X']
-inplay_df = inplay_df[['exit_speed(km)','launch_angle','hit_spin_rate','HangTime']]
-inplay_df.columns = ['exit_velocity','launch_angleX','hit_spin','hang_time']
-
-whiff = ndf[ndf['whiff'] == 1]
-whiff['z_str_swing'] = whiff['zone'].apply(lambda x: 1 if x < 10 else None)
-z_ztr_swing = whiff[['z_str_swing']]
-
-ndf = ndf.join(z_swing, how='outer')
-ndf = ndf.join(o_swing, how='outer')
-ndf = ndf.join(z_con, how='outer')
-ndf = ndf.join(o_con, how='outer')
-ndf = ndf.join(f_swing, how='outer')
-ndf = ndf.join(inplay_df, how='outer')
-ndf = ndf.join(z_ztr_swing, how='outer')
-ndf = ndf.join(z_inplay, how='outer')
-ndf = ndf.join(o_inplay, how='outer')
-
-ndf['f_pitch'] = ndf['count'].apply(lambda x: 1 if x == '0-0' else None)
+# pitch type 여부
 ndf['S'] = np.where(ndf['type'].isin(['S', 'X']), 1, 0)
 
-ndf['Left_take'] = ndf['l_r'].apply(lambda x: 1 if x == 'Left_take' else None)
-ndf['Right_take'] = ndf['l_r'].apply(lambda x: 1 if x == 'Right_take' else None)
-ndf['High_take'] = ndf['h_l'].apply(lambda x: 1 if x == 'High_take' else None)
-ndf['Low_take'] = ndf['h_l'].apply(lambda x: 1 if x == 'Low_take' else None)
+# take 위치 정보
+ndf['Left_take']  = np.where(ndf['l_r'] == 'Left_take', 1, None)
+ndf['Right_take'] = np.where(ndf['l_r'] == 'Right_take', 1, None)
+ndf['High_take']  = np.where(ndf['h_l'] == 'High_take', 1, None)
+ndf['Low_take']   = np.where(ndf['h_l'] == 'Low_take', 1, None)
 
-ndf['looking'] = ndf['description'].apply(lambda x: 1 if x == "ball" or x == "called_strike" else None)
+# looking 여부
+ndf['looking'] = np.where(ndf['description'].isin(['ball', 'called_strike']), 1, None)
 
 ot = ndf[ndf['p_kind'] == 'OT'].index
 ndf = ndf.drop(ot)
