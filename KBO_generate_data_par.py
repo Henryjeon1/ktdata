@@ -668,55 +668,40 @@ def ntype(x):
 
 ndf['ntype'] = ndf['description'].apply(lambda x: ntype(x))
 
-z_df = ndf[ndf['zone'] < 10]
-z_df['z_swing'] = z_df['swing'].apply(lambda x: 1 if x == 1 else None)
-z_df['z_con'] = z_df['con'].apply(lambda x: 1 if x == 1 else None)
-z_df['z_inplay'] = z_df['inplay'].apply(lambda x: 1 if x == 1 else None)
+# zone 기반 분류
+ndf['z_swing']    = np.where((ndf['zone'] < 10) & (ndf['swing'] == 1), 1, None)
+ndf['z_con']      = np.where((ndf['zone'] < 10) & (ndf['con'] == 1), 1, None)
+ndf['z_inplay']   = np.where((ndf['zone'] < 10) & (ndf['inplay'] == 1), 1, None)
 
-z_swing = z_df[['z_swing']]
-z_con = z_df[['z_con']]
-z_inplay = z_df[['z_inplay']]
+ndf['o_swing']    = np.where((ndf['zone'] > 10) & (ndf['swing'] == 1), 1, None)
+ndf['o_con']      = np.where((ndf['zone'] > 10) & (ndf['con'] == 1), 1, None)
+ndf['o_inplay']   = np.where((ndf['zone'] > 10) & (ndf['inplay'] == 1), 1, None)
 
-o_df = ndf[ndf['zone'] > 10]
-o_df['o_swing'] = o_df['swing'].apply(lambda x: 1 if x == 1 else None)
-o_df['o_con'] = o_df['con'].apply(lambda x: 1 if x == 1 else None)
-o_df['o_inplay'] = o_df['inplay'].apply(lambda x: 1 if x == 1 else None)
+# first pitch
+ndf['f_swing']    = np.where((ndf['count'] == '0-0') & (ndf['swing'] == 1), 1, None)
+ndf['f_pitch']    = np.where(ndf['count'] == '0-0', 1, None)
 
-o_swing = o_df[['o_swing']]
-o_con = o_df[['o_con']]
-o_inplay = o_df[['o_inplay']]
+# whiff zone strike swing
+ndf['z_str_swing'] = np.where((ndf['whiff'] == 1) & (ndf['zone'] < 10), 1, None)
 
-f_pitch = ndf[ndf['count'] == '0-0']
-f_pitch['f_swing'] = f_pitch['swing'].apply(lambda x: 1 if x == 1 else None)
-f_swing = f_pitch[['f_swing']]
+# inplay 관련 변수 정리
+inplay_mask = ndf['type'] == 'X'
+ndf.loc[inplay_mask, 'exit_velocity'] = ndf.loc[inplay_mask, 'exit_speed(km)']
+ndf.loc[inplay_mask, 'launch_angleX'] = ndf.loc[inplay_mask, 'launch_angle']
+ndf.loc[inplay_mask, 'hit_spin']      = ndf.loc[inplay_mask, 'hit_spin_rate']
+ndf.loc[inplay_mask, 'hang_time']     = ndf.loc[inplay_mask, 'HangTime']
 
-inplay_df = ndf[ndf['type'] == 'X']
-inplay_df = inplay_df[['exit_speed(km)','launch_angle','hit_spin_rate','HangTime']]
-inplay_df.columns = ['exit_velocity','launch_angleX','hit_spin','hang_time']
-
-whiff = ndf[ndf['whiff'] == 1]
-whiff['z_str_swing'] = whiff['zone'].apply(lambda x: 1 if x < 10 else None)
-z_ztr_swing = whiff[['z_str_swing']]
-
-ndf = ndf.join(z_swing, how='outer')
-ndf = ndf.join(o_swing, how='outer')
-ndf = ndf.join(z_con, how='outer')
-ndf = ndf.join(o_con, how='outer')
-ndf = ndf.join(f_swing, how='outer')
-ndf = ndf.join(inplay_df, how='outer')
-ndf = ndf.join(z_ztr_swing, how='outer')
-ndf = ndf.join(z_inplay, how='outer')
-ndf = ndf.join(o_inplay, how='outer')
-
-ndf['f_pitch'] = ndf['count'].apply(lambda x: 1 if x == '0-0' else None)
+# pitch type 여부
 ndf['S'] = np.where(ndf['type'].isin(['S', 'X']), 1, 0)
 
-ndf['Left_take'] = ndf['l_r'].apply(lambda x: 1 if x == 'Left_take' else None)
-ndf['Right_take'] = ndf['l_r'].apply(lambda x: 1 if x == 'Right_take' else None)
-ndf['High_take'] = ndf['h_l'].apply(lambda x: 1 if x == 'High_take' else None)
-ndf['Low_take'] = ndf['h_l'].apply(lambda x: 1 if x == 'Low_take' else None)
+# take 위치 정보
+ndf['Left_take']  = np.where(ndf['l_r'] == 'Left_take', 1, None)
+ndf['Right_take'] = np.where(ndf['l_r'] == 'Right_take', 1, None)
+ndf['High_take']  = np.where(ndf['h_l'] == 'High_take', 1, None)
+ndf['Low_take']   = np.where(ndf['h_l'] == 'Low_take', 1, None)
 
-ndf['looking'] = ndf['description'].apply(lambda x: 1 if x == "ball" or x == "called_strike" else None)
+# looking 여부
+ndf['looking'] = np.where(ndf['description'].isin(['ball', 'called_strike']), 1, None)
 
 ot = ndf[ndf['p_kind'] == 'OT'].index
 ndf = ndf.drop(ot)
