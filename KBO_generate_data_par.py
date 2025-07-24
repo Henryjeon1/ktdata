@@ -2,6 +2,8 @@ import os
 import pymysql
 import pandas as pd
 import numpy as np
+import time
+
 
 # ✅ 환경 변수에서 날짜 가져오기
 PW = os.getenv("PW")
@@ -525,38 +527,113 @@ def count(x):
   elif x == '3-1':
     return 'Hitter'
 
-df['count_value'] = df['count'].apply(lambda x: count(x))
+count_value = []
+after_2s = []
+hitting = []
+_else = []
 
-df['after_2s'] = df['count_value'].apply(lambda x: 1 if x == 'After_2S' else None)
-df['hitting'] = df['count_value'].apply(lambda x: 1 if x == 'Hitting' else None)
-df['else'] = df['count_value'].apply(lambda x: 1 if x == 'Else' else None)
+ld = []
+fb = []
+gb = []
+pu = []
 
-df['ld'] = df['bb_type'].apply(lambda x: 1 if x == 'Line_Drive' else None)
-df['fb'] = df['bb_type'].apply(lambda x: 1 if x == 'Fly_Ball' else None)
-df['gb'] = df['bb_type'].apply(lambda x: 1 if x == 'Ground_Ball' else None)
-df['pu'] = df['bb_type'].apply(lambda x: 1 if x == 'Popup' else None)
+single = []
+double = []
+triple = []
+home_run = []
+walk = []
+strikeout = []
+hit_by_pitch = []
+sac_fly = []
+sac_bunt = []
+field_out = []
 
-df['single'] = df['events'].apply(lambda x: 1 if x == 'single' else None)
-df['double'] = df['events'].apply(lambda x: 1 if x == 'double' else None)
-df['triple'] = df['events'].apply(lambda x: 1 if x == 'triple' else None)
-df['home_run'] = df['events'].apply(lambda x: 1 if x == 'home_run' else None)
-df['walk'] = df['events'].apply(lambda x: 1 if x == 'walk' else None)
-df['strkeout'] = df['events'].apply(lambda x: 1 if x == 'strkeout' else None)
-df['hit_by_pitch'] = df['events'].apply(lambda x: 1 if x == 'hit_by_pitch' else None)
-df['sac_fly'] = df['events'].apply(lambda x: 1 if x == 'sac_fly' else None)
-df['sac_bunt'] = df['events'].apply(lambda x: 1 if x == 'sac_bunt' else None)
-df['field_out'] = df['events'].apply(lambda x: 1 if x == 'field_out' else None)
+inplay = []
 
-df['inplay'] = df['type'].apply(lambda x: 1 if x == 'X' else None)
+weak = []
+topped = []
+under = []
+flare = []
+solid_contact = []
+barrel = []
+plus_lsa4 = []
 
-df['weak'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 1 else None)
-df['topped'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 2 else None)
-df['under'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 3 else None)
-df['flare'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 4 else None)
-df['solid_contact'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 5 else None)
-df['barrel'] = df['launch_speed_angle'].apply(lambda x: 1 if x == 6 else None)
-df['plus_lsa4'] = df['launch_speed_angle'].apply(lambda x: 1 if x >=4 else None)
-df['cs'] = df['description'].apply(lambda x: 1 if x == 'called_strike' else None)
+cs = []
+
+for i, row in df.iterrows():
+    c = count(row['count'])
+    count_value.append(c)
+    after_2s.append(1 if c == 'After_2S' else None)
+    hitting.append(1 if c == 'Hitting' else None)
+    _else.append(1 if c == 'Else' else None)
+
+    bb = row['bb_type']
+    ld.append(1 if bb == 'Line_Drive' else None)
+    fb.append(1 if bb == 'Fly_Ball' else None)
+    gb.append(1 if bb == 'Ground_Ball' else None)
+    pu.append(1 if bb == 'Popup' else None)
+
+    ev = row['events']
+    single.append(1 if ev == 'single' else None)
+    double.append(1 if ev == 'double' else None)
+    triple.append(1 if ev == 'triple' else None)
+    home_run.append(1 if ev == 'home_run' else None)
+    walk.append(1 if ev == 'walk' else None)
+    strikeout.append(1 if ev == 'strkeout' else None)
+    hit_by_pitch.append(1 if ev == 'hit_by_pitch' else None)
+    sac_fly.append(1 if ev == 'sac_fly' else None)
+    sac_bunt.append(1 if ev == 'sac_bunt' else None)
+    field_out.append(1 if ev == 'field_out' else None)
+
+    inplay.append(1 if row['type'] == 'X' else None)
+
+    lsa = row['launch_speed_angle']
+    weak.append(1 if lsa == 1 else None)
+    topped.append(1 if lsa == 2 else None)
+    under.append(1 if lsa == 3 else None)
+    flare.append(1 if lsa == 4 else None)
+    solid_contact.append(1 if lsa == 5 else None)
+    barrel.append(1 if lsa == 6 else None)
+    plus_lsa4.append(1 if lsa >= 4 else None)
+
+    cs.append(1 if row['description'] == 'called_strike' else None)
+
+    if i % 500 == 0:
+        print(f"Processing row {i}")
+    time.sleep(0.001)
+
+# 이제 DataFrame에 넣기
+df['count_value'] = count_value
+df['after_2s'] = after_2s
+df['hitting'] = hitting
+df['else'] = _else
+
+df['ld'] = ld
+df['fb'] = fb
+df['gb'] = gb
+df['pu'] = pu
+
+df['single'] = single
+df['double'] = double
+df['triple'] = triple
+df['home_run'] = home_run
+df['walk'] = walk
+df['strkeout'] = strikeout
+df['hit_by_pitch'] = hit_by_pitch
+df['sac_fly'] = sac_fly
+df['sac_bunt'] = sac_bunt
+df['field_out'] = field_out
+
+df['inplay'] = inplay
+
+df['weak'] = weak
+df['topped'] = topped
+df['under'] = under
+df['flare'] = flare
+df['solid_contact'] = solid_contact
+df['barrel'] = barrel
+df['plus_lsa4'] = plus_lsa4
+df['cs'] = cs
 
 
 df['game_date'] = pd.to_datetime(df['game_date'], format='mixed')
