@@ -526,6 +526,10 @@ def count(x):
     return 'Hitter'
   elif x == '3-1':
     return 'Hitter'
+
+# apply count 함수는 벡터화 불가하니 실행
+df['count_value'] = df['count'].apply(lambda x: count(x))
+
 # 각 컬럼 생성 - tqdm으로 진행 상태 출력
 progress_cols = {
     'after_2s':        df['count_value'] == 'After_2S',
