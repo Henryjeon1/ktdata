@@ -526,55 +526,44 @@ def count(x):
     return 'Hitter'
   elif x == '3-1':
     return 'Hitter'
+# 각 컬럼 생성 - tqdm으로 진행 상태 출력
+progress_cols = {
+    'after_2s':        df['count_value'] == 'After_2S',
+    'hitting':         df['count_value'] == 'Hitting',
+    'else':            df['count_value'] == 'Else',
+    
+    'ld':              df['bb_type'] == 'Line_Drive',
+    'fb':              df['bb_type'] == 'Fly_Ball',
+    'gb':              df['bb_type'] == 'Ground_Ball',
+    'pu':              df['bb_type'] == 'Popup',
 
-# 진행 로그 찍는 함수
-def print_progress(df, step=50000):
-    for i in range(0, len(df), step):
-        print(f"✅ Processed {i} rows out of {len(df)}")
+    'single':          df['events'] == 'single',
+    'double':          df['events'] == 'double',
+    'triple':          df['events'] == 'triple',
+    'home_run':        df['events'] == 'home_run',
+    'walk':            df['events'] == 'walk',
+    'strkeout':        df['events'] == 'strkeout',
+    'hit_by_pitch':    df['events'] == 'hit_by_pitch',
+    'sac_fly':         df['events'] == 'sac_fly',
+    'sac_bunt':        df['events'] == 'sac_bunt',
+    'field_out':       df['events'] == 'field_out',
 
-# apply count 함수는 벡터화 불가하니 실행
-df['count_value'] = df['count'].apply(lambda x: count(x))
+    'inplay':          df['type'] == 'X',
 
-# 중간 로그
-print_progress(df, step=50000)
+    'weak':            df['launch_speed_angle'] == 1,
+    'topped':          df['launch_speed_angle'] == 2,
+    'under':           df['launch_speed_angle'] == 3,
+    'flare':           df['launch_speed_angle'] == 4,
+    'solid_contact':   df['launch_speed_angle'] == 5,
+    'barrel':          df['launch_speed_angle'] == 6,
+    'plus_lsa4':       df['launch_speed_angle'] >= 4,
 
-# 이후는 벡터화 적용
-df['after_2s'] = (df['count_value'] == 'After_2S').astype('Int64')   # Int64는 결측치 지원 정수형
-df['hitting'] = (df['count_value'] == 'Hitting').astype('Int64')
-df['else'] = (df['count_value'] == 'Else').astype('Int64')
+    'cs':              df['description'] == 'called_strike'
+}
 
-print_progress(df, step=50000)
-
-df['ld'] = (df['bb_type'] == 'Line_Drive').astype('Int64')
-df['fb'] = (df['bb_type'] == 'Fly_Ball').astype('Int64')
-df['gb'] = (df['bb_type'] == 'Ground_Ball').astype('Int64')
-df['pu'] = (df['bb_type'] == 'Popup').astype('Int64')
-
-df['single'] = (df['events'] == 'single').astype('Int64')
-df['double'] = (df['events'] == 'double').astype('Int64')
-df['triple'] = (df['events'] == 'triple').astype('Int64')
-df['home_run'] = (df['events'] == 'home_run').astype('Int64')
-df['walk'] = (df['events'] == 'walk').astype('Int64')
-df['strkeout'] = (df['events'] == 'strkeout').astype('Int64')
-df['hit_by_pitch'] = (df['events'] == 'hit_by_pitch').astype('Int64')
-df['sac_fly'] = (df['events'] == 'sac_fly').astype('Int64')
-df['sac_bunt'] = (df['events'] == 'sac_bunt').astype('Int64')
-df['field_out'] = (df['events'] == 'field_out').astype('Int64')
-
-print_progress(df, step=50000)
-
-df['inplay'] = (df['type'] == 'X').astype('Int64')
-
-df['weak'] = (df['launch_speed_angle'] == 1).astype('Int64')
-df['topped'] = (df['launch_speed_angle'] == 2).astype('Int64')
-df['under'] = (df['launch_speed_angle'] == 3).astype('Int64')
-df['flare'] = (df['launch_speed_angle'] == 4).astype('Int64')
-df['solid_contact'] = (df['launch_speed_angle'] == 5).astype('Int64')
-df['barrel'] = (df['launch_speed_angle'] == 6).astype('Int64')
-df['plus_lsa4'] = (df['launch_speed_angle'] >= 4).astype('Int64')
-
-df['cs'] = (df['description'] == 'called_strike').astype('Int64')
-
+# tqdm으로 진행 상태 출력
+for col_name, condition in tqdm(progress_cols.items(), desc="🔄 Creating columns"):
+    df[col_name] = condition.astype('Int64')
 
 df['game_date'] = pd.to_datetime(df['game_date'], format='mixed')
 
