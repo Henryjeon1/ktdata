@@ -527,113 +527,41 @@ def count(x):
   elif x == '3-1':
     return 'Hitter'
 
-count_value = []
-after_2s = []
-hitting = []
-_else = []
+# count 함수가 외부에 있다면 apply는 불가피하지만, 그 외에는 벡터화로
+df['count_value'] = df['count'].apply(lambda x: count(x))  # count() 함수가 복잡하면 그대로 둬야 함
 
-ld = []
-fb = []
-gb = []
-pu = []
+# 이후는 벡터화 적용
+df['after_2s'] = (df['count_value'] == 'After_2S').astype('Int64')   # Int64는 결측치 지원 정수형
+df['hitting'] = (df['count_value'] == 'Hitting').astype('Int64')
+df['else'] = (df['count_value'] == 'Else').astype('Int64')
 
-single = []
-double = []
-triple = []
-home_run = []
-walk = []
-strikeout = []
-hit_by_pitch = []
-sac_fly = []
-sac_bunt = []
-field_out = []
+df['ld'] = (df['bb_type'] == 'Line_Drive').astype('Int64')
+df['fb'] = (df['bb_type'] == 'Fly_Ball').astype('Int64')
+df['gb'] = (df['bb_type'] == 'Ground_Ball').astype('Int64')
+df['pu'] = (df['bb_type'] == 'Popup').astype('Int64')
 
-inplay = []
+df['single'] = (df['events'] == 'single').astype('Int64')
+df['double'] = (df['events'] == 'double').astype('Int64')
+df['triple'] = (df['events'] == 'triple').astype('Int64')
+df['home_run'] = (df['events'] == 'home_run').astype('Int64')
+df['walk'] = (df['events'] == 'walk').astype('Int64')
+df['strkeout'] = (df['events'] == 'strkeout').astype('Int64')
+df['hit_by_pitch'] = (df['events'] == 'hit_by_pitch').astype('Int64')
+df['sac_fly'] = (df['events'] == 'sac_fly').astype('Int64')
+df['sac_bunt'] = (df['events'] == 'sac_bunt').astype('Int64')
+df['field_out'] = (df['events'] == 'field_out').astype('Int64')
 
-weak = []
-topped = []
-under = []
-flare = []
-solid_contact = []
-barrel = []
-plus_lsa4 = []
+df['inplay'] = (df['type'] == 'X').astype('Int64')
 
-cs = []
+df['weak'] = (df['launch_speed_angle'] == 1).astype('Int64')
+df['topped'] = (df['launch_speed_angle'] == 2).astype('Int64')
+df['under'] = (df['launch_speed_angle'] == 3).astype('Int64')
+df['flare'] = (df['launch_speed_angle'] == 4).astype('Int64')
+df['solid_contact'] = (df['launch_speed_angle'] == 5).astype('Int64')
+df['barrel'] = (df['launch_speed_angle'] == 6).astype('Int64')
+df['plus_lsa4'] = (df['launch_speed_angle'] >= 4).astype('Int64')
 
-for i, row in df.iterrows():
-    c = count(row['count'])
-    count_value.append(c)
-    after_2s.append(1 if c == 'After_2S' else None)
-    hitting.append(1 if c == 'Hitting' else None)
-    _else.append(1 if c == 'Else' else None)
-
-    bb = row['bb_type']
-    ld.append(1 if bb == 'Line_Drive' else None)
-    fb.append(1 if bb == 'Fly_Ball' else None)
-    gb.append(1 if bb == 'Ground_Ball' else None)
-    pu.append(1 if bb == 'Popup' else None)
-
-    ev = row['events']
-    single.append(1 if ev == 'single' else None)
-    double.append(1 if ev == 'double' else None)
-    triple.append(1 if ev == 'triple' else None)
-    home_run.append(1 if ev == 'home_run' else None)
-    walk.append(1 if ev == 'walk' else None)
-    strikeout.append(1 if ev == 'strkeout' else None)
-    hit_by_pitch.append(1 if ev == 'hit_by_pitch' else None)
-    sac_fly.append(1 if ev == 'sac_fly' else None)
-    sac_bunt.append(1 if ev == 'sac_bunt' else None)
-    field_out.append(1 if ev == 'field_out' else None)
-
-    inplay.append(1 if row['type'] == 'X' else None)
-
-    lsa = row['launch_speed_angle']
-    weak.append(1 if lsa == 1 else None)
-    topped.append(1 if lsa == 2 else None)
-    under.append(1 if lsa == 3 else None)
-    flare.append(1 if lsa == 4 else None)
-    solid_contact.append(1 if lsa == 5 else None)
-    barrel.append(1 if lsa == 6 else None)
-    plus_lsa4.append(1 if lsa >= 4 else None)
-
-    cs.append(1 if row['description'] == 'called_strike' else None)
-
-    if i % 500 == 0:
-        print(f"Processing row {i}")
-    time.sleep(0.001)
-
-# 이제 DataFrame에 넣기
-df['count_value'] = count_value
-df['after_2s'] = after_2s
-df['hitting'] = hitting
-df['else'] = _else
-
-df['ld'] = ld
-df['fb'] = fb
-df['gb'] = gb
-df['pu'] = pu
-
-df['single'] = single
-df['double'] = double
-df['triple'] = triple
-df['home_run'] = home_run
-df['walk'] = walk
-df['strkeout'] = strikeout
-df['hit_by_pitch'] = hit_by_pitch
-df['sac_fly'] = sac_fly
-df['sac_bunt'] = sac_bunt
-df['field_out'] = field_out
-
-df['inplay'] = inplay
-
-df['weak'] = weak
-df['topped'] = topped
-df['under'] = under
-df['flare'] = flare
-df['solid_contact'] = solid_contact
-df['barrel'] = barrel
-df['plus_lsa4'] = plus_lsa4
-df['cs'] = cs
+df['cs'] = (df['description'] == 'called_strike').astype('Int64')
 
 
 df['game_date'] = pd.to_datetime(df['game_date'], format='mixed')
