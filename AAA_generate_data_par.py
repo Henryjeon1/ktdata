@@ -64,7 +64,7 @@ gameid
 
 -- description
 , case when pitchCall in('FoulBall', 'FoulballFieldable', 'FoulballNotFieldable') then 'foul'
-	when pitchCall in ('BallCalled', 'BallinDirt', 'AutomaticBall, 'BallAutomatic') then 'ball'
+	when pitchCall in ('BallCalled', 'BallinDirt', 'AutomaticBall', 'BallAutomatic') then 'ball'
 	when pitchCall in ('StrikeCalled', 'AutomaticStrike', 'StrikeAutomatic') then 'called_strike'
 	when pitchCall = 'StrikeSwinging' then 'swinging_strike'
 	when pitchCall = 'InPlay' and playresult in ('Double','Single','HomeRun','Error','Triple','FieldersChoice')  and  runsscored = 0 then 'hit_into_play_no_out'
