@@ -308,7 +308,7 @@ level = 'KoreaBaseballOrganization' and
 		or (gameid >='20220401' and gameid <='20221012')
 		or (gameid >='20230401' and gameid <='20231018')
 		or (gameid >='20240323' and gameid <='20241002')
-		or (gameid >='20250321' and gameid <='20251006')
+		or (gameid >='20250321' and gameid <='20251005')
 	)
 
 order by gameid, pitchno 
