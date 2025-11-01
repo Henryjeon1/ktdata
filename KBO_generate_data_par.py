@@ -60,7 +60,7 @@ gameid
 	when (playresult = 'Sacrifice' and distance < 30) or (playresult = 'Sacrifice' and TaggedHitType = "Bunt") then 'sac_bunt'
 	when playresult = 'HitByPitch' or pitchcall = 'HitByPitch'  then 'hit_by_pitch'
 	when playresult = 'Undefined' and korbb = 'Strikeout' then 'strikeout'
-	when playresult = 'Undefined' and korbb = 'Walk' then 'walk' else NULL END as events
+	when playresult = 'Walk' or (playresult = 'Undefined' and korbb = 'Walk') then 'walk' else NULL END as events
 
 -- description
 , case when pitchCall in('FoulBall', 'FoulballFieldable', 'FoulballNotFieldable') then 'foul'
