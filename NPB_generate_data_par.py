@@ -297,9 +297,9 @@ gameid
 		FROM 
 			pda_trackman a
 		  -- JOIN
-			# Left outer join 
-			# pda_analyzer b
-			# ON a.game_seq = b.game_seq AND a.pit_seq = b.pit_seq
+			Left outer join 
+			pda_analyzer b
+			ON a.game_seq = b.game_seq AND a.pit_seq = b.pit_seq
    			Left outer join 
 			pda_calculate c
 			ON a.game_seq = c.game_seq AND a.PitchNo = c.pitch_no
