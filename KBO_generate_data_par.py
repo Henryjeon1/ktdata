@@ -241,6 +241,9 @@ gameid
 -- catcher
 , catcher as catcher
 
+-- runner
+, RUNNER as runner
+
 , HitTrajectoryXc0, HitTrajectoryXc1, HitTrajectoryXc2, HitTrajectoryXc3, HitTrajectoryXc4, HitTrajectoryXc5, HitTrajectoryXc6, HitTrajectoryXc7, HitTrajectoryXc8
 , HitTrajectoryYc0, HitTrajectoryYc1, HitTrajectoryYc2, HitTrajectoryYc3, HitTrajectoryYc4, HitTrajectoryYc5, HitTrajectoryYc6, HitTrajectoryYc7, HitTrajectoryYc8
 , HitTrajectoryZc0, HitTrajectoryZc1, HitTrajectoryZc2, HitTrajectoryZc3, HitTrajectoryZc4, HitTrajectoryZc5, HitTrajectoryZc6, HitTrajectoryZc7, HitTrajectoryZc8
@@ -256,23 +259,34 @@ gameid
 		(
 		SELECT a.*, substring(GameID ,1,4) as SEASON
 		, CASE WHEN pit_kind_cd = '31' THEN 'FF'
-		WHEN pit_kind_cd = '32' THEN 'CU'
-		WHEN pit_kind_cd = '33' THEN 'SL'
-		WHEN pit_kind_cd = '34' THEN 'CH'
-		WHEN pit_kind_cd = '35' THEN 'FS'
-		WHEN pit_kind_cd = '36' THEN 'SI'
-		WHEN pit_kind_cd = '37' THEN 'FT'
-		WHEN pit_kind_cd = '38' THEN 'FC'
-  		WHEN pit_kind_cd = '131' THEN 'ST'
-  		WHEN PIT_KIND_CD IS NULL and (AUTOPITCHTYPE = 'Fastball' OR AUTOPITCHTYPE = 'Four-Seam')  then 'FF'
-		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Sinker' then 'SI' 
-		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Curveball' then 'CU' 
-		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Slider' then 'SL'
-		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Changeup' then 'CH'
-		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Splitter' then 'FS'
-		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Cutter' then 'FC'
-  		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Sweeper' then 'ST'
-		ELSE 'OT' END  AS PITKIND
+			WHEN pit_kind_cd = '32' THEN 'CU'
+			WHEN pit_kind_cd = '33' THEN 'SL'
+			WHEN pit_kind_cd = '34' THEN 'CH'
+			WHEN pit_kind_cd = '35' THEN 'FS'
+			WHEN pit_kind_cd = '36' THEN 'SI'
+			WHEN pit_kind_cd = '37' THEN 'FT'
+			WHEN pit_kind_cd = '38' THEN 'FC'
+	  		WHEN pit_kind_cd = '131' THEN 'ST'
+	  		WHEN PIT_KIND_CD IS NULL and (AUTOPITCHTYPE = 'Fastball' OR AUTOPITCHTYPE = 'Four-Seam')  then 'FF'
+			WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Sinker' then 'SI' 
+			WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Curveball' then 'CU' 
+			WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Slider' then 'SL'
+			WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Changeup' then 'CH'
+			WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Splitter' then 'FS'
+			WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Cutter' then 'FC'
+	  		WHEN PIT_KIND_CD IS NULL and AUTOPITCHTYPE = 'Sweeper' then 'ST'
+			ELSE 'OT' END  AS PITKIND
+		, CASE 
+			WHEN BEFORE_B1_BAT_TURN_NO = 0 AND BEFORE_B2_BAT_TURN_NO = 0 AND BEFORE_B3_BAT_TURN_NO = 0 THEN '0'
+			WHEN BEFORE_B1_BAT_TURN_NO <> 0 AND BEFORE_B2_BAT_TURN_NO = 0 AND BEFORE_B3_BAT_TURN_NO = 0 THEN '1' 
+			WHEN BEFORE_B1_BAT_TURN_NO = 0 AND BEFORE_B2_BAT_TURN_NO <> 0 AND BEFORE_B3_BAT_TURN_NO = 0 THEN '2'
+			WHEN BEFORE_B1_BAT_TURN_NO = 0 AND BEFORE_B2_BAT_TURN_NO = 0 AND BEFORE_B3_BAT_TURN_NO <> 0 THEN '3'
+			WHEN BEFORE_B1_BAT_TURN_NO <> 0 AND BEFORE_B2_BAT_TURN_NO <> 0 AND BEFORE_B3_BAT_TURN_NO = 0 THEN '12'
+			WHEN BEFORE_B1_BAT_TURN_NO <> 0 AND BEFORE_B2_BAT_TURN_NO = 0 AND BEFORE_B3_BAT_TURN_NO <> 0 THEN '13'
+			WHEN BEFORE_B1_BAT_TURN_NO = 0 AND BEFORE_B2_BAT_TURN_NO <> 0 AND BEFORE_B3_BAT_TURN_NO <> 0 THEN '23'
+			WHEN BEFORE_B1_BAT_TURN_NO <> 0 AND BEFORE_B2_BAT_TURN_NO <> 0 AND BEFORE_B3_BAT_TURN_NO <> 0 THEN '123' 
+			ELSE '???'  END AS RUNNER
+		
 		
 		, PITCHER as pitname, BATTER as batname 
 	 
@@ -323,7 +337,7 @@ raw = cursor.fetchall()
 df=pd.DataFrame(raw, columns = ['game_id','pitch_type', 'game_date', 'release_speed', 'release_pos_x', 'release_pos_z',  'pitname', 'batname', 'batter', 'pitcher', 'events', 'description', 'zone', 'des', 'stand', 'p_throw', 'pitcherteam','batterteam', 'hometeam' , 'awayteam',
                                 'type', 'bb_type', 'balls', 'strikes', 'pfx_x', 'pfx_z', 'plate_x', 'plate_z', 'out_when_up', 'inning', 'inning_topbot', 'hit_distance_sc',
                                 'launch_speed','launch_angle','HangTime','release_spin_rate','release_spin_axis', 'release_extension',
-                                'launch_speed_angle','pitch_number','PAofinning','pitch_name','home_score','away_score','level','verrelangle','launch_direction', 'contactX' , 'contactY' , 'contactZ', 'groundX','groundY','game_year','hit_spin_rate', 'catcher',
+                                'launch_speed_angle','pitch_number','PAofinning','pitch_name','home_score','away_score','level','verrelangle','launch_direction', 'contactX' , 'contactY' , 'contactZ', 'groundX','groundY','game_year','hit_spin_rate', 'catcher', 'runner',
 				'HitTrajectoryXc0', 'HitTrajectoryXc1', 'HitTrajectoryXc2', 'HitTrajectoryXc3', 'HitTrajectoryXc4', 'HitTrajectoryXc5', 'HitTrajectoryXc6', 'HitTrajectoryXc7', 'HitTrajectoryXc8',
                                 'HitTrajectoryYc0', 'HitTrajectoryYc1', 'HitTrajectoryYc2', 'HitTrajectoryYc3', 'HitTrajectoryYc4', 'HitTrajectoryYc5', 'HitTrajectoryYc6', 'HitTrajectoryYc7', 'HitTrajectoryYc8',
                                 'HitTrajectoryZc0', 'HitTrajectoryZc1', 'HitTrajectoryZc2', 'HitTrajectoryZc3', 'HitTrajectoryZc4', 'HitTrajectoryZc5', 'HitTrajectoryZc6', 'HitTrajectoryZc7', 'HitTrajectoryZc8',
@@ -631,7 +645,7 @@ df['DH'] = df['game_id'].str[-1]
 
 ndf = df[['game_year', 'game_date', 'inning', 'hometeam','home_score', 'awayteam','away_score',
          'pitch_number','balls', 'strikes', 'zone', 'new_zone','stand', 'p_throw', 'p_throws', 'p_type', 'type', 'bb_type','events', 'description', 'hor_break','ver_break','plate_x','plate_z',
-         'pitcherteam', 'pitname', 'pitcher','catcher','batterteam', 'batname', 'batter',
+         'pitcherteam', 'pitname', 'pitcher','catcher', 'runner','batterteam', 'batname', 'batter',
          'rel_speed(km)','release_spin_rate', 'release_spin_axis','rel_height', 'rel_side', 'extension','pitch_name', 'p_kind',
          'exit_speed(km)','launch_angle','HangTime','launch_direction','hit_distance','hit_spin_rate','launch_speed_angle', 'contactX', 'contactY', 'contactZ', 'groundX', 'groundY', 'l_r','h_l',
          'pa', 'ab', 'hit', 'swing', 'con', 'whiff','foul','z_in','z_out','count', 'count_value', 'z_left','z_right','z_high','z_low',
