@@ -240,8 +240,6 @@ gameid
 -- hit spin rat
 , hitspinrate
 
-, bearing
-
 -- catcher
 , catcher as catcher
 
