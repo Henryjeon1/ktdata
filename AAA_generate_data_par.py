@@ -301,7 +301,7 @@ gameid
 
 		FROM 
 			pda_trackman a
-		  -- JOIN
+		  
 			Left outer join 
 			pda_analyzer b
 			ON a.game_seq = b.game_seq AND a.pit_seq = b.pit_seq
@@ -316,7 +316,7 @@ WHERE
 
 substring(gameid,1,4) >= '2024'
 and 
-level = 'AAA' and
+level = 'AAA' 
 
 order by gameid, pitchno 
 
