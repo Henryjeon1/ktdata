@@ -230,16 +230,20 @@ gameid
 , case when bearing >= 0 then 'R' WHEN BEARING < 0 THEN 'L' ELSE NULL END as direction
 , round(ContactPositionX,2) , round(ContactPositionY,2) , round(ContactPositionZ,2)
 
-, case when pitchcall = 'inplay' and bearing >= 0 and bearing <= 45 then convert(round(distance *cos(radians(45-bearing)),0),int)
-   when pitchcall = 'inplay' and bearing < 0 and bearing >= -45 then convert(round(distance *cos(radians(45 + abs(bearing))),0),int) else '' end as groundxside
-, case when pitchcall = 'inplay' and bearing >= 0 and bearing <= 45 then convert(round(distance *sin(radians(45-bearing)),0),int)
-   when pitchcall = 'inplay' and bearing < 0 and bearing >= -45 then convert(round(distance *sin(radians(45 + abs(bearing))),0),int) else '' end as groundyside
+, CASE 
+        WHEN pitchcall = 'inplay' THEN CAST(ROUND(distance * COS(RADIANS(45 - bearing)), 0) AS SIGNED)
+        ELSE NULL 
+    END AS groundxside
+, CASE 
+        WHEN pitchcall = 'inplay' THEN CAST(ROUND(distance * SIN(RADIANS(45 - bearing)), 0) AS SIGNED)
+        ELSE NULL 
+    END AS groundyside
 
 -- year
 , SEASON AS game_year
 
--- hit spin rat
-, hitspinrate
+-- hit spin rate, Batspeed, Attackangle
+, hitspinrate, BatSpeed, VerticalAttackAngle, HorizontalAttackAngle
 
 -- catcher
 , catcher as catcher
@@ -316,7 +320,8 @@ WHERE
 
 substring(gameid,1,4) >= '2021'
 and gameid <> '20241001-Suwon-1'
-and level = 'KBO Minors'
+and 
+level = 'KBO Minors'
 
 order by gameid, pitchno 
 
@@ -330,7 +335,7 @@ raw = cursor.fetchall()
 df=pd.DataFrame(raw, columns = ['game_id','pitch_type', 'game_date', 'release_speed', 'release_pos_x', 'release_pos_z',  'pitname', 'batname', 'batter', 'pitcher', 'events', 'description', 'zone', 'des', 'stand', 'p_throw', 'pitcherteam','batterteam', 'hometeam' , 'awayteam',
                                 'type', 'bb_type', 'balls', 'strikes', 'pfx_x', 'pfx_z', 'plate_x', 'plate_z', 'out_when_up', 'inning', 'inning_topbot', 'hit_distance_sc',
                                 'launch_speed','launch_angle','HangTime','bearing','release_spin_rate','release_spin_axis', 'release_extension',
-                                'launch_speed_angle','pitch_number','PAofinning','pitch_name','home_score','away_score', 'field_if','level','verrelangle','launch_direction', 'contactX' , 'contactY' , 'contactZ', 'groundX','groundY','game_year','hit_spin_rate', 'catcher', 'runner',
+                                'launch_speed_angle','pitch_number','PAofinning','pitch_name','home_score','away_score', 'field_if','level','verrelangle','launch_direction', 'contactX' , 'contactY' , 'contactZ', 'groundX','groundY','game_year','hit_spin_rate', 'BatSpeed', 'VerticalAttackAngle', 'HorizontalAttackAngle', 'catcher', 'runner',
 				'HitTrajectoryXc0', 'HitTrajectoryXc1', 'HitTrajectoryXc2', 'HitTrajectoryXc3', 'HitTrajectoryXc4', 'HitTrajectoryXc5', 'HitTrajectoryXc6', 'HitTrajectoryXc7', 'HitTrajectoryXc8',
                                 'HitTrajectoryYc0', 'HitTrajectoryYc1', 'HitTrajectoryYc2', 'HitTrajectoryYc3', 'HitTrajectoryYc4', 'HitTrajectoryYc5', 'HitTrajectoryYc6', 'HitTrajectoryYc7', 'HitTrajectoryYc8',
                                 'HitTrajectoryZc0', 'HitTrajectoryZc1', 'HitTrajectoryZc2', 'HitTrajectoryZc3', 'HitTrajectoryZc4', 'HitTrajectoryZc5', 'HitTrajectoryZc6', 'HitTrajectoryZc7', 'HitTrajectoryZc8',
@@ -641,10 +646,10 @@ ndf = df[['game_year', 'game_date', 'inning', 'hometeam','home_score', 'awayteam
          'pitch_number','balls', 'strikes', 'zone', 'new_zone','stand', 'p_throw', 'p_throws', 'p_type', 'type', 'bb_type','events', 'description', 'hor_break','ver_break','plate_x','plate_z',
          'pitcherteam', 'pitname', 'pitcher','catcher', 'runner','batterteam', 'batname', 'batter',
          'rel_speed(km)','release_spin_rate', 'release_spin_axis','rel_height', 'rel_side', 'extension','pitch_name', 'p_kind',
-         'exit_speed(km)','launch_angle','HangTime','bearing','launch_direction','hit_distance','hit_spin_rate','launch_speed_angle', 'contactX', 'contactY', 'contactZ', 'groundX', 'groundY', 'l_r','h_l',
+         'exit_speed(km)','launch_angle','HangTime','bearing','launch_direction','hit_distance','hit_spin_rate', 'BatSpeed', 'VerticalAttackAngle', 'HorizontalAttackAngle','launch_speed_angle', 'contactX', 'contactY', 'contactZ', 'groundX', 'groundY', 'l_r','h_l',
          'pa', 'ab', 'hit', 'swing', 'con', 'whiff','foul','z_in','z_out','count', 'count_value', 'z_left','z_right','z_high','z_low',
           'ld','fb','gb','pu','single','double','triple','home_run','walk','strkeout','hit_by_pitch','sac_fly','sac_bunt','field_out','inplay',
-          'weak','topped','under','flare','solid_contact','barrel','plus_lsa4','level','DH','cs', 'Height', 'high', 'low', '2/3', '1/3', 'zonehigh', 'corehigh', 'corelow', 'zonelow', 'field_if',
+          'weak','topped','under','flare','solid_contact','barrel','plus_lsa4','level','DH','cs', 'Height', 'high', 'low', '2/3', '1/3', 'zonehigh', 'corehigh', 'corelow', 'zonelow','field_if',
           'x0', 'x5', 'x10', 'x15', 'x20', 'x25', 'x30', 'x35', 'x40', 'x45', 'x50',
           'z0', 'z5', 'z10', 'z15', 'z20', 'z25', 'z30', 'z35', 'z40', 'z45', 'z50', 'pitchuid',
 	  'HitTrajectoryXc0', 'HitTrajectoryXc1', 'HitTrajectoryXc2', 'HitTrajectoryXc3', 'HitTrajectoryXc4', 'HitTrajectoryXc5', 'HitTrajectoryXc6', 'HitTrajectoryXc7', 'HitTrajectoryXc8',
