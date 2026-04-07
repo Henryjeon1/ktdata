@@ -235,8 +235,14 @@ gameid
 --    when pitchcall = 'inplay' and bearing < 0 and bearing >= -45 then convert(round(distance *cos(radians(45 + abs(bearing))),0),int) else '' end as groundxside
 -- , case when pitchcall = 'inplay' and bearing >= 0 and bearing <= 45 then convert(round(distance *sin(radians(45-bearing)),0),int)
 --    when pitchcall = 'inplay' and bearing < 0 and bearing >= -45 then convert(round(distance *sin(radians(45 + abs(bearing))),0),int) else '' end as groundyside
-, CASE WHEN pitchcall = 'inplay' THEN CONVERT(INT, ROUND(distance * COS(RADIANS(45 - bearing)), 0)) ELSE NULL END AS groundxside
-, CASE WHEN pitchcall = 'inplay' THEN CONVERT(INT, ROUND(distance * SIN(RADIANS(45 - bearing)), 0)) ELSE NULL END AS groundyside
+, CASE 
+        WHEN pitchcall = 'inplay' THEN CAST(ROUND(distance * COS(RADIANS(45 - bearing)), 0) AS SIGNED)
+        ELSE NULL 
+    END AS groundxside
+, CASE 
+        WHEN pitchcall = 'inplay' THEN CAST(ROUND(distance * SIN(RADIANS(45 - bearing)), 0) AS SIGNED)
+        ELSE NULL 
+    END AS groundyside
 
 -- year
 , SEASON AS game_year
