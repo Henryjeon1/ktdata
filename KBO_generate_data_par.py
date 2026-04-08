@@ -380,10 +380,10 @@ df = pd.merge(left = df , right = height_df_p, how = "left", left_on = ["game_ye
 
 height_df_c = height_df.rename(columns={'NAME': 'NAME_catcher'})
 height_df_c = height_df_c[["game_year", "TM_ID", "NAME_catcher"]]
-df = pd.merge(left = df , right = height_df_c, how = "left", left_on = ["game_year","catcher"], right_on = ["game_year", "TM_ID"] )
+df = pd.merge(left = df , right = height_df_c, how = "left", left_on = ["game_year","catcherid"], right_on = ["game_year", "TM_ID"] )
 
 
-df[['batter','pitcher','catcher','groundX','groundY','game_year']] = df[['batter','pitcher','catcher','groundX', 'groundY','game_year']].apply(pd.to_numeric)
+df[['batter','pitcher','catcherid','groundX','groundY','game_year']] = df[['batter','pitcher','catcherid','groundX', 'groundY','game_year']].apply(pd.to_numeric)
 
 conv_fac = 0.3048
 
