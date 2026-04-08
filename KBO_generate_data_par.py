@@ -663,10 +663,10 @@ ndf = df[['game_year', 'game_date', 'inning', 'hometeam','home_score', 'awayteam
           'weak','topped','under','flare','solid_contact','barrel','plus_lsa4','level','DH','cs', 'Height', 'high', 'low', '2/3', '1/3', 'zonehigh', 'corehigh', 'corelow', 'zonelow','field_if',
           'x0', 'x5', 'x10', 'x15', 'x20', 'x25', 'x30', 'x35', 'x40', 'x45', 'x50',
           'z0', 'z5', 'z10', 'z15', 'z20', 'z25', 'z30', 'z35', 'z40', 'z45', 'z50', 'pitchuid', 'SpinAxis3dTransverseAngle', 'SpinAxis3dLongitudinalAngle', 'SpinAxis3dActiveSpinRate', 'SpinAxis3dSpinEfficiency',
-	  'HitTrajectoryXc0', 'HitTrajectoryXc1', 'HitTrajectoryXc2', 'HitTrajectoryXc3', 'HitTrajectoryXc4', 'HitTrajectoryXc5', 'HitTrajectoryXc6', 'HitTrajectoryXc7', 'HitTrajectoryXc8',
+		  'HitTrajectoryXc0', 'HitTrajectoryXc1', 'HitTrajectoryXc2', 'HitTrajectoryXc3', 'HitTrajectoryXc4', 'HitTrajectoryXc5', 'HitTrajectoryXc6', 'HitTrajectoryXc7', 'HitTrajectoryXc8',
           'HitTrajectoryYc0', 'HitTrajectoryYc1', 'HitTrajectoryYc2', 'HitTrajectoryYc3', 'HitTrajectoryYc4', 'HitTrajectoryYc5', 'HitTrajectoryYc6', 'HitTrajectoryYc7', 'HitTrajectoryYc8',
           'HitTrajectoryZc0', 'HitTrajectoryZc1', 'HitTrajectoryZc2', 'HitTrajectoryZc3', 'HitTrajectoryZc4', 'HitTrajectoryZc5', 'HitTrajectoryZc6', 'HitTrajectoryZc7', 'HitTrajectoryZc8',
-	  'NAME_batter', 'NAME_pitcher'
+		  'NAME_batter', 'NAME_pitcher'
         ]]
 
 def ntype(x):
