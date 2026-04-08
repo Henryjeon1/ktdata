@@ -246,7 +246,7 @@ gameid
 , hitspinrate, BatSpeed, VerticalAttackAngle, HorizontalAttackAngle
 
 -- catcher
-, catcher as catcher
+, catcher as catcher, catcherid
 
 -- runner
 , RUNNER as runner
@@ -335,7 +335,7 @@ raw = cursor.fetchall()
 df=pd.DataFrame(raw, columns = ['game_id','pitch_type', 'game_date', 'release_speed', 'release_pos_x', 'release_pos_z',  'pitname', 'batname', 'batter', 'pitcher', 'events', 'description', 'zone', 'des', 'stand', 'p_throw', 'pitcherteam','batterteam', 'hometeam' , 'awayteam',
                                 'type', 'bb_type', 'balls', 'strikes', 'pfx_x', 'pfx_z', 'plate_x', 'plate_z', 'out_when_up', 'inning', 'inning_topbot', 'hit_distance_sc',
                                 'launch_speed','launch_angle','HangTime','bearing','release_spin_rate','release_spin_axis', 'release_extension',
-                                'launch_speed_angle','pitch_number','PAofinning','pitch_name','home_score','away_score', 'field_if','level','verrelangle','launch_direction', 'contactX' , 'contactY' , 'contactZ', 'groundX','groundY','game_year','hit_spin_rate', 'BatSpeed', 'VerticalAttackAngle', 'HorizontalAttackAngle', 'catcher', 'runner',
+                                'launch_speed_angle','pitch_number','PAofinning','pitch_name','home_score','away_score', 'field_if','level','verrelangle','launch_direction', 'contactX' , 'contactY' , 'contactZ', 'groundX','groundY','game_year','hit_spin_rate', 'BatSpeed', 'VerticalAttackAngle', 'HorizontalAttackAngle', 'catcher', 'catcherid', 'runner',
 								'HitTrajectoryXc0', 'HitTrajectoryXc1', 'HitTrajectoryXc2', 'HitTrajectoryXc3', 'HitTrajectoryXc4', 'HitTrajectoryXc5', 'HitTrajectoryXc6', 'HitTrajectoryXc7', 'HitTrajectoryXc8',
                                 'HitTrajectoryYc0', 'HitTrajectoryYc1', 'HitTrajectoryYc2', 'HitTrajectoryYc3', 'HitTrajectoryYc4', 'HitTrajectoryYc5', 'HitTrajectoryYc6', 'HitTrajectoryYc7', 'HitTrajectoryYc8',
                                 'HitTrajectoryZc0', 'HitTrajectoryZc1', 'HitTrajectoryZc2', 'HitTrajectoryZc3', 'HitTrajectoryZc4', 'HitTrajectoryZc5', 'HitTrajectoryZc6', 'HitTrajectoryZc7', 'HitTrajectoryZc8',
@@ -369,10 +369,10 @@ df = pd.merge(left = df , right = height_df_p, how = "left", left_on = ["game_ye
 
 height_df_c = height_df.rename(columns={'NAME': 'NAME_catcher'})
 height_df_c = height_df_c[["game_year", "TM_ID", "NAME_catcher"]]
-df = pd.merge(left = df , right = height_df_c, how = "left", left_on = ["game_year","CatcherId"], right_on = ["game_year", "TM_ID"] )
+df = pd.merge(left = df , right = height_df_c, how = "left", left_on = ["game_year","catcherid"], right_on = ["game_year", "TM_ID"] )
 
 
-df[['batter','pitcher','CatcherId','groundX','groundY','game_year']] = df[['batter','pitcher','CatcherId','groundX', 'groundY','game_year']].apply(pd.to_numeric)
+df[['batter','pitcher','catcherid','groundX','groundY','game_year']] = df[['batter','pitcher','catcherid','groundX', 'groundY','game_year']].apply(pd.to_numeric)
 
 conv_fac = 0.3048
 
