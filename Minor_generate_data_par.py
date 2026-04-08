@@ -368,7 +368,7 @@ height_df_p = height_df_p[["game_year", "TM_ID", "NAME_pitcher"]]
 df = pd.merge(left = df , right = height_df_p, how = "left", left_on = ["game_year","pitcher"], right_on = ["game_year", "TM_ID"] )
 
 height_df_c = height_df.rename(columns={'NAME': 'NAME_catcher'})
-height_df_c = height_df_p[["game_year", "TM_ID", "NAME_catcher"]]
+height_df_c = height_df_c[["game_year", "TM_ID", "NAME_catcher"]]
 df = pd.merge(left = df , right = height_df_c, how = "left", left_on = ["game_year","catcher"], right_on = ["game_year", "TM_ID"] )
 
 
