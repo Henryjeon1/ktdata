@@ -341,7 +341,7 @@ df=pd.DataFrame(raw, columns = ['game_id','pitch_type', 'game_date', 'release_sp
                                 'HitTrajectoryZc0', 'HitTrajectoryZc1', 'HitTrajectoryZc2', 'HitTrajectoryZc3', 'HitTrajectoryZc4', 'HitTrajectoryZc5', 'HitTrajectoryZc6', 'HitTrajectoryZc7', 'HitTrajectoryZc8',
                                 'x0', 'x5', 'x10', 'x15', 'x20', 'x25', 'x30', 'x35', 'x40', 'x45', 'x50',
                                 'z0', 'z5', 'z10', 'z15', 'z20', 'z25', 'z30', 'z35', 'z40', 'z45', 'z50',
-								'gameuid, 'pitchuid', 'SpinAxis3dTransverseAngle', 'SpinAxis3dLongitudinalAngle', 'SpinAxis3dActiveSpinRate', 'SpinAxis3dSpinEfficiency'])
+								'gameuid', 'pitchuid', 'SpinAxis3dTransverseAngle', 'SpinAxis3dLongitudinalAngle', 'SpinAxis3dActiveSpinRate', 'SpinAxis3dSpinEfficiency'])
 
 df['plate_x'] = df['plate_x'] * -1.0
 df['pfx_x'] = df['pfx_x'] * -1.0
