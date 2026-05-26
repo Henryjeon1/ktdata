@@ -250,7 +250,7 @@ gameid
 
 -- runner
 , RUNNER as runner
-, ZoneTime, PitchTrajectoryXc0,	PitchTrajectoryXc1,	PitchTrajectoryXc2,	PitchTrajectoryYc0	PitchTrajectoryYc1,	PitchTrajectoryYc2,	PitchTrajectoryZc0,	PitchTrajectoryZc1, PitchTrajectoryZc2
+, ZoneTime, PitchTrajectoryXc0,	PitchTrajectoryXc1,	PitchTrajectoryXc2,	PitchTrajectoryYc0, PitchTrajectoryYc1,	PitchTrajectoryYc2,	PitchTrajectoryZc0,	PitchTrajectoryZc1, PitchTrajectoryZc2
 
 , HitTrajectoryXc0, HitTrajectoryXc1, HitTrajectoryXc2, HitTrajectoryXc3, HitTrajectoryXc4, HitTrajectoryXc5, HitTrajectoryXc6, HitTrajectoryXc7, HitTrajectoryXc8
 , HitTrajectoryYc0, HitTrajectoryYc1, HitTrajectoryYc2, HitTrajectoryYc3, HitTrajectoryYc4, HitTrajectoryYc5, HitTrajectoryYc6, HitTrajectoryYc7, HitTrajectoryYc8
