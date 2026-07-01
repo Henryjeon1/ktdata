@@ -1,0 +1,79 @@
+name: Full Update KBSA_par
+
+
+on:
+  workflow_run:
+    workflows: ["Full Update NPB_par"]
+    types:
+      - completed  # 첫 워크플로우가 완료되면 자동 실행
+  workflow_dispatch:  # 수동 실행도 허용
+
+jobs:
+  update-KBSA:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v3
+
+      - name: Python 설정
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: 필요한 패키지 설치
+        run: pip install pandas pyarrow requests pymysql jq tqdm
+
+      - name: KBSA 리그 데이터 생성
+        run: python KBSA_generate_data_par.py
+        env:
+          PW: ${{ secrets.PW }}
+
+      - name: 릴리스에 KBSA 데이터 업로드
+        run: |
+          TAG_NAME="KoreaBaseballOrganization"
+          FILE_PATH="KBSA.parquet"
+          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          API_URL="https://api.github.com/repos/${{ github.repository }}/releases"
+
+          echo "📦 릴리스 존재 여부 확인"
+          RELEASE_DATA=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "$API_URL/tags/${TAG_NAME}")
+          RELEASE_ID=$(echo "$RELEASE_DATA" | jq -r '.id')
+
+          if [[ "$RELEASE_ID" == "null" ]]; then
+            echo "🔄 릴리스가 존재하지 않음. 새로 생성합니다."
+            RESPONSE=$(curl -s -X POST -H "Authorization: token $GITHUB_TOKEN" \
+              -d "{\"tag_name\": \"$TAG_NAME\", \"name\": \"$TAG_NAME\", \"body\": \"자동 생성 릴리스입니다.\"}" \
+              "$API_URL")
+            RELEASE_ID=$(echo "$RESPONSE" | jq -r '.id')
+          fi
+
+          echo "🆗 릴리스 ID: $RELEASE_ID"
+
+          # 기존에 같은 이름의 asset이 있으면 삭제
+          ASSETS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "$API_URL/$RELEASE_ID/assets")
+          for row in $(echo "$ASSETS" | jq -r '.[] | @base64'); do
+            _jq() {
+              echo "${row}" | base64 --decode | jq -r "${1}"
+            }
+            NAME=$(_jq '.name')
+            ID=$(_jq '.id')
+            if [[ "$NAME" == "$(basename $FILE_PATH)" ]]; then
+              echo "🗑️ 기존 asset 삭제: $NAME"
+              curl -s -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
+                "$API_URL/assets/$ID"
+            fi
+          done
+
+          echo "⬆️ 파일 업로드: $FILE_PATH"
+          curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Content-Type: application/octet-stream" \
+            --upload-file "$FILE_PATH" \
+            "https://uploads.github.com/repos/${{ github.repository }}/releases/${RELEASE_ID}/assets?name=$(basename $FILE_PATH)"
+
+          echo "✅ 업로드 완료!"
