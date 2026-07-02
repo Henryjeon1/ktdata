@@ -9,6 +9,8 @@ jobs:
     timeout-minutes: 60
     permissions:
       contents: write
+      actions: write   # ← 이 줄 추가
+
 
     steps:
       - name: 저장소 체크아웃
