@@ -1,12 +1,7 @@
 name: Full Update KBSA_par
 
-
 on:
-  workflow_run:
-    workflows: ["Full Update NPB_par"]
-    types:
-      - completed  # 첫 워크플로우가 완료되면 자동 실행
-  workflow_dispatch:  # 수동 실행도 허용
+  workflow_dispatch:
 
 jobs:
   update-KBSA:
